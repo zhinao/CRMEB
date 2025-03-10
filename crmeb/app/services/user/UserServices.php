@@ -759,6 +759,62 @@ class UserServices extends BaseServices
         return create_form('添加用户', $f, $this->url('/user/user'), 'POST');
     }
 
+
+    /**
+     * 添加佣金（浩专用）
+     * @param int $id
+     * @return mixed
+     */
+    public function addIncome($array)
+    {
+
+        $users=$this->getUserList([],"uid,device_num,nickname,brokerage_price");
+
+        $data['adminId'] = $array['adminId'];
+        $IncomeDate = $array['IncomeDate'];
+        //$data['integration'] = (string)$data['integration'];
+        $data['money_status']=1;
+        $data['is_other'] = true;
+        $IncomePrice=$array['IncomePrice'];
+        if($IncomePrice==0)
+            return "收益单价不能为0";
+
+        $type = 'get_self_brokerage2';    
+        foreach ($users['list'] as $key => $value) {
+            $user=$value;
+            $device_num=$user['device_num'];
+            if($device_num>0)
+            {
+                $uid=$user['uid'];
+                $price = floatval($IncomePrice*$device_num);
+                //$data['mark'] ="收益日期：{$IncomeDate} 单价：{$IncomePrice}元 * 数量：{$device_num}台";
+                
+                // 上级推广员返佣之后的金额
+                $balance = bcadd($user['brokerage_price'], $price, 2);
+                // 添加用户佣金
+                $res1 = $this->bcInc($uid, 'brokerage_price', $price, 'uid');
+                if ($res1) {
+                    //冻结时间
+                    $broken_time = intval(sys_config('extract_time'));
+                    $frozen_time = time() + $broken_time * 86400;
+                    // 添加佣金记录
+                    /** @var UserBrokerageServices $userBrokerageServices */
+                    $userBrokerageServices = app()->make(UserBrokerageServices::class);
+                    $userBrokerageServices->income($type, $uid, [
+                        'nickname' => $user['nickname'],
+                        'IncomeDate' => $IncomeDate,
+                        'IncomePrice' => $IncomePrice,
+                        'device_num' => $device_num,
+                        'number' => floatval($price),
+                        'frozen_time' => $frozen_time
+                    ], $balance, '');
+                }
+
+            }
+        }
+        return;
+    }
+    
     /**
      * 修改提交处理
      * @param int $id
@@ -782,7 +838,10 @@ class UserServices extends BaseServices
             $userMoneyServices = app()->make(UserMoneyServices::class);
             if ($data['money_status'] == 1) {//增加
                 $edit['now_money'] = bcadd($user['now_money'], $data['money'], 2);
-                $res1 = $userMoneyServices->income('system_add', $user['uid'], $data['money'], $edit['now_money'], $data['adminId'] ?? 0);
+                if(isset($data['mark']) && $data['mark'])
+                    $res1 = $userMoneyServices->income('system_add', $user['uid'], $data['money'], $edit['now_money'], $data['adminId'] ?? 0,$data['mark']);
+                else
+                    $res1 = $userMoneyServices->income('system_add', $user['uid'], $data['money'], $edit['now_money'], $data['adminId'] ?? 0);
                 //增加充值记录
                 $recharge_data = [
                     'order_id' => app()->make(StoreOrderCreateServices::class)->getNewOrderId('cz'),
@@ -811,7 +870,7 @@ class UserServices extends BaseServices
         } else {
             $res1 = true;
         }
-        if ($data['integration_status'] && $data['integration']) {//积分增加或者减少
+        if (isset($data['integration_status']) && $data['integration_status'] && $data['integration']) {//积分增加或者减少
             /** @var UserBillServices $userBill */
             $userBill = app()->make(UserBillServices::class);
             $integral_data = ['link_id' => $data['adminId'] ?? 0, 'number' => $data['integration']];
@@ -843,12 +902,15 @@ class UserServices extends BaseServices
             }
             $edit['status'] = $data['status'];
             $edit['real_name'] = $data['real_name'];
+            $edit['nickname'] = $data['real_name'];
             $edit['card_id'] = $data['card_id'];
             $edit['birthday'] = strtotime($data['birthday']);
             $edit['mark'] = $data['mark'];
             $edit['is_promoter'] = $data['is_promoter'];
             $edit['level'] = $data['level'];
             $edit['phone'] = $data['phone'];
+            $edit['device_num'] = $data['device_num'];
+            
             $edit['addres'] = $data['addres'];
             $edit['group_id'] = $data['group_id'];
             if ($user['level'] != $data['level']) {

@@ -222,6 +222,7 @@ export default {
           this.$store.commit('userInfo/newOrderAudioLink', data.newOrderAudioLink);
           this.login_captcha = 0;
           try {
+            /*
             if (data.queue === false) {
               this.$notify.warning({
                 title: '温馨提示',
@@ -240,6 +241,7 @@ export default {
                 duration: 30000,
               });
             }
+            */
 
             this.checkSocket();
           } catch (e) {}
@@ -279,6 +281,7 @@ export default {
           isNotice = true;
           socket.close();
         };
+        /*
         socket.onerror = (err) => {
           if (!isNotice) {
             isNotice = true;
@@ -303,6 +306,7 @@ export default {
             });
           }
         };
+        */
       });
     },
     getExpiresTime(expiresTime) {

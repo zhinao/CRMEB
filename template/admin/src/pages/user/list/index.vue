@@ -262,11 +262,21 @@
             <div v-if="scope.row.is_del == 1" style="color: red">用户已注销</div>
           </template>
         </el-table-column>
-        <el-table-column label="付费会员" min-width="90">
+        <el-table-column label="手机号" min-width="100">
+          <template slot-scope="scope">
+            <div>{{ scope.row.phone }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="设备数量" min-width="100">
+          <template slot-scope="scope">
+            <div>{{ scope.row.device_num }}</div>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="付费会员" min-width="90">
           <template slot-scope="scope">
             <div>{{ scope.row.isMember ? '是' : '否' }}</div>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column label="用户等级" min-width="90">
           <template slot-scope="scope">
             <div>{{ scope.row.level }}</div>
@@ -277,21 +287,19 @@
             <div>{{ scope.row.group_id }}</div>
           </template>
         </el-table-column>
-        <el-table-column label="手机号" min-width="100">
-          <template slot-scope="scope">
-            <div>{{ scope.row.phone }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column label="用户类型" min-width="100">
+
+        <!-- <el-table-column label="用户类型" min-width="100">
           <template slot-scope="scope">
             <div>{{ scope.row.user_type }}</div>
           </template>
-        </el-table-column>
-        <el-table-column label="余额" prop="now_money" min-width="100" :sortable="true">
+        </el-table-column> -->
+
+        <!-- <el-table-column label="余额" prop="now_money" min-width="100" :sortable="true">
           <template slot-scope="scope">
             <div>{{ scope.row.now_money }}</div>
           </template>
-        </el-table-column>
+        </el-table-column> -->
+
         <el-table-column label="操作" fixed="right" width="120">
           <template slot-scope="scope">
             <template v-if="scope.row.is_del != 1">

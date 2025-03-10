@@ -27,14 +27,14 @@
 					:maxlength="11"></input>
 			</view>
 			<view class="item acea-row row-between-wrapper">
-				<input type='number' :placeholder='$t(`填写验证码`)' placeholder-class='placeholder' :maxlength="6"
+				<input type='number' :placeholder='$t(`填写密码`)' placeholder-class='placeholder' :maxlength="20"
 					class="codeIput" v-model="captcha"></input>
 				<view class="line">
 
 				</view>
-				<button class="code font-num" :class="disabled === true ? 'on' : ''" :disabled='disabled' @click="code">
+<!-- 				<button class="code font-num" :class="disabled === true ? 'on' : ''" :disabled='disabled' @click="code">
 					{{ text }}
-				</button>
+				</button> -->
 			</view>
 			<view class="btn" @click="submitData">
 				{{$t(`${pageType == 1 ? '绑定手机号' : '立即登录'}`)}}
@@ -138,6 +138,7 @@
 				this.protocol = true
 			},
 			submitData() {
+				console.log('pageType',this.pageType);
 				let that = this;
 				if (this.pageType == 0) {
 					this.isLogin()
@@ -175,7 +176,7 @@
 				}
 				if (!that.captcha) {
 					return that.$util.Tips({
-						title: that.$t(`请填写验证码`)
+						title: that.$t(`请填写密码`)
 					});
 					return false
 				}
@@ -196,6 +197,7 @@
 								phone: this.phone,
 								captcha: this.captcha,
 							}).then(res => {
+								
 								uni.hideLoading();
 								let time = res.data.expires_time - this.$Cache.time();
 								this.$store.commit('LOGIN', {
@@ -233,6 +235,8 @@
 					captcha: this.captcha,
 					key
 				}).then(res => {
+					
+					
 					let time = res.data.expires_time - this.$Cache.time();
 					this.$store.commit('LOGIN', {
 						token: res.data.token,

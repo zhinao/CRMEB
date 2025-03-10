@@ -41,6 +41,9 @@
               ></el-option>
             </el-select>
           </el-form-item>
+
+
+
         </el-form>
       </div>
     </el-card>
@@ -77,7 +80,7 @@
             <span>{{ scope.row.type_name }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="备注" min-width="100">
+        <el-table-column label="备注" min-width="200">
           <template slot-scope="scope">
             <span>{{ scope.row.mark }}</span>
           </template>
@@ -110,6 +113,7 @@
 <script>
 import { mapState } from 'vuex';
 import { getBalanceList, setBalanceMark } from '@/api/finance';
+
 import { formatDate } from '@/utils/validate';
 import dateRadio from '@/components/dateRadio';
 export default {
@@ -167,6 +171,7 @@ export default {
         limit: 20,
       },
       timeVal: [],
+
       FromData: null,
       extractId: 0,
     };
@@ -184,6 +189,7 @@ export default {
     this.getList();
   },
   methods: {
+    
     // 确定
     oks() {
       this.modal_loading = true;
@@ -221,6 +227,9 @@ export default {
       this.formValidate.time = this.timeVal ? this.timeVal.join('-') : '';
       this.formValidate.page = 1;
       this.getList();
+    },
+    onchangeIncodeDate(e) {
+      this.IncodeDate = e;
     },
     // 选择
     selChange(e) {

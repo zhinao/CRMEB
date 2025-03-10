@@ -100,6 +100,15 @@ module.exports = {
   // 这里写你调用接口的基础路径，来解决跨域，如果设置了代理，那你本地开发环境的axios的baseUrl要写为 '' ，即空字符串
   devServer: {
     port: 1617, // 端口
+    proxy: {
+      '/adminapi': {  // 根据实际接口路径调整
+        target: 'http://192.168.110.200/adminapi', // 后端服务地址
+        changeOrigin: true, // 允许跨域
+        pathRewrite: {
+          '^/adminapi': '' // 重写路径（若后端接口无前缀则保留空）
+        }
+      }
+    }
   },
   publicPath: '/admin',
   assetsDir: 'system_static',

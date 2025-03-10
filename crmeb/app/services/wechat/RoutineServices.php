@@ -185,7 +185,7 @@ class RoutineServices extends BaseServices
      * @email: 442384644@qq.com
      * @date: 2023/8/12
      */
-    public function phoneLogin($key, $phone, $spread = '', $spid = '', $code = '')
+    public function phoneLogin($key, $phone, $spread = '', $spid = '', $code = '',$password = '')
     {
         if ($code == '') {
             [$openid, $routineInfo, $spid, $login_type, $userType] = CacheService::get($key);
@@ -208,10 +208,10 @@ class RoutineServices extends BaseServices
             $routineInfo['session_key'] = $userInfoConfig['session_key'];
             $routineInfo['headimgurl'] = sys_config('h5_avatar');
             $routineInfo['phone'] = $phone;
-            $createData = [$openid, $routineInfo, $spid, 'routine', 'routine'];
+            $createData = [$openid, $routineInfo, $spid, 'routine', 'routine',$password];
         }
         //写入用户信息
-        $user = app()->make(WechatUserServices::class)->wechatOauthAfter($createData);
+        $user = app()->make(WechatUserServices::class)->wechatOauthAfter($createData,$password);
         $token = $this->createToken((int)$user['uid'], 'api');
         if ($token) {
             app()->make(UserVisitServices::class)->loginSaveVisit($user);

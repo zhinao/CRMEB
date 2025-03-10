@@ -129,7 +129,7 @@ class UserMoneyServices extends BaseServices
             }, $key);
             $value = array_values($number);
             $data['number'] = $number['number'] ?? 0;
-            $data['mark'] = str_replace($key, $value, $data['mark']);
+            $data['mark'] =str_replace($key, $value, $data['mark']);
         } else {
             $data['number'] = $number;
             $data['mark'] = str_replace(['{%num%}'], $number, $data['mark']);

@@ -34,6 +34,36 @@
           <el-form-item>
             <el-button type="primary" v-db-click @click="userSearchs">查询</el-button>
           </el-form-item>
+
+
+
+          <el-form-item label="收益日期：">
+            <el-date-picker
+                clearable
+                v-model="IncomeDate"
+                type="date"
+                :editable="false"
+                format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd"
+                placeholder="收益日期"
+                style="width: 150px"
+                class="mr20"
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item label="收益单价：">
+                <el-input-number
+                  :controls="false"
+                  v-model="IncomePrice"
+                  :min="0"
+                  :precision="2"
+                  placeholder="输入每台收益单价"
+                  :max="9999999999"
+                  :active-change="false"
+                ></el-input-number>
+              </el-form-item>
+          <el-form-item>
+            <el-button type="primary" v-db-click @click="AddIncome">添加收益</el-button>
+          </el-form-item>
         </el-form>
       </div>
     </el-card>
@@ -46,6 +76,7 @@
         v-loading="loading"
         empty-text="暂无数据"
         @on-sort-change="sortChanged"
+        
         class="mt14"
       >
         <el-table-column label="用户信息" min-width="100">
@@ -55,7 +86,7 @@
         </el-table-column>
         <el-table-column label="总佣金金额" min-width="100">
           <template slot-scope="scope">
-            <span>{{ scope.row.sum_number }}</span>
+            <span style="cursor:pointer" @click="Info(scope.row)">{{ scope.row.sum_number }}</span>
           </template>
         </el-table-column>
         <el-table-column label="账户余额" min-width="100">
@@ -91,7 +122,7 @@
 import { mapState } from 'vuex';
 import { commissionListApi, userCommissionApi } from '@/api/finance';
 import commissionDetails from './handle/commissionDetails';
-
+import { addIncome} from '@/api/user';
 export default {
   name: 'commissionRecord',
   components: { commissionDetails },
@@ -108,6 +139,8 @@ export default {
         page: 1, // 当前页
         limit: 20, // 每页显示条数
       },
+      IncomeDate:'',
+      IncomePrice:'',
     };
   },
   computed: {
@@ -123,6 +156,21 @@ export default {
     this.getList();
   },
   methods: {
+    //添加收益
+    AddIncome()
+    {
+      this.modal_loading = true;
+       let data={IncomeDate:this.IncomeDate,IncomePrice:this.IncomePrice};
+        addIncome(data).then(async(res) =>{
+          console.log(res);
+          this.modal_loading = false;
+          this.$message.success(res.msg);
+          this.getList();
+        }).catch((res) => {
+          this.modal_loading = false;
+          this.$message.error(res.msg);
+        });
+    },
     // 列表
     getList() {
       this.loading = true;

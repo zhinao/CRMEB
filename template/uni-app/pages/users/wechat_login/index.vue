@@ -27,13 +27,16 @@
 				<button hover-class="none" @click="wechatLogin" class="bg-theme btn1">{{$t(`微信登录`)}}</button>
 				<!-- #endif -->
 				<!-- #ifdef MP -->
-				<template v-if="configData.wechat_auth_switch">
+				
+				
+				<!-- <template v-if="configData.wechat_auth_switch">
 					<button class="bg-theme btn1" v-if="bindPhone" open-type="getPhoneNumber"
 						@getphonenumber="getphonenumber">{{$t(`授权登录`)}}</button>
 					<button class="bg-theme btn1" v-else-if="!bindPhone" @click="getAuthLogin">
 						{{$t(`授权登录`)}}
 					</button>
-				</template>
+				</template> -->
+				
 				<button v-if="configData.phone_auth_switch" hover-class="none" @click="phoneLogin"
 					class="btn2">{{$t(`手机号登录`)}}</button>
 				<!-- #endif -->

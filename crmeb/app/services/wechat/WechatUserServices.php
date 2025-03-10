@@ -273,7 +273,7 @@ class WechatUserServices extends BaseServices
      * @email 442384644@qq.com
      * @date 2023/02/24
      */
-    public function wechatOauthAfter($data)
+    public function wechatOauthAfter($data,$password='')
     {
         if (!$data) throw new ApiException('用户信息获取失败，请刷新页面重试');
         [$openid, $wechatInfo, $spreadId, $login_type, $userType] = $data;
@@ -318,6 +318,20 @@ class WechatUserServices extends BaseServices
         if (isset($wechatInfo['phone']) && $wechatInfo['phone']) {
             $userInfo = $userServices->getOne(['phone' => $wechatInfo['phone'], 'is_del' => 0]);
         }
+
+        if (!$userInfo) {
+            throw new ApiException('用户不存在');
+        }
+
+        if($password!='')
+        {
+            $pwd=$userInfo->pwd;
+            if ($pwd !== md5((string)$password))
+                throw new ApiException('密码错误');
+        }
+
+
+
         if (!$userInfo) {
             if (isset($wechatInfo['unionid']) && $wechatInfo['unionid']) {
                 $uid = $this->dao->value(['unionid' => $wechatInfo['unionid'], 'is_del' => 0], 'uid');
@@ -346,19 +360,21 @@ class WechatUserServices extends BaseServices
             $loginService = app()->make(LoginServices::class);
             $this->transaction(function () use ($loginService, $wechatInfo, $userInfo, $uid, $userType, $spreadId, $wechatUser) {
                 $wechatInfo['code'] = $spreadId;
-                $loginService->updateUserInfo($wechatInfo, $userInfo);
+                $loginService->updateUserInfo($wechatInfo, $userInfo); //更新用户信息
                 if ($wechatUser) {
                     if (!$this->dao->update($wechatUser['id'], $wechatInfo, 'id')) {
                         throw new ApiException(100007);
                     }
                 } else {
                     $wechatInfo['uid'] = $uid;
+                    $wechatInfo['nickname'] = $userInfo['nickname'];
                     if (!$this->dao->save($wechatInfo)) {
                         throw new ApiException(100007);
                     }
                 }
             });
         } else {
+            throw new ApiException('用户不存在');
             //user表没有用户,wechat_user表没有用户创建新用户
             //不存在则创建用户
             $userInfo = $this->transaction(function () use ($userServices, $wechatInfo, $spreadId, $userType) {

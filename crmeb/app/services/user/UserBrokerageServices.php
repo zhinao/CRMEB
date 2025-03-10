@@ -133,6 +133,13 @@ class UserBrokerageServices extends BaseServices
             'status' => 1,
             'pm' => 1
         ],
+        'get_self_brokerage2' => [
+            'title' => '收益',
+            'type' => 'self_brokerage2',
+            'mark' => '收益日期：{%IncomeDate%} 单价：{%IncomePrice%}元 * 数量：{%device_num%}台',
+            'status' => 1,
+            'pm' => 1
+        ],
     ];
 
 

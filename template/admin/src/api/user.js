@@ -33,6 +33,8 @@ export function getUserData(id) {
   });
 }
 
+
+
 /**
  * @description 开关
  * @param {Number} param id {Number}
@@ -102,6 +104,21 @@ export function editOtherApi(id) {
     method: 'get',
   });
 }
+
+/**
+ * @description 送收益
+ * 
+ */
+export function addIncome(data) {
+ 
+  return request({
+    url: `user/add_income`,
+    method: 'POST',
+    data: data
+  });
+}
+
+
 
 /**
  * @description 会员管理-详情

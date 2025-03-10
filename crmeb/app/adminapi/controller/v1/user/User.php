@@ -85,6 +85,19 @@ class User extends AuthController
         return app('json')->success($data);
     }
 
+    public function add_income()
+    {
+        $data = $this->request->postMore([
+            ['IncomeDate', ''],
+            ['IncomePrice', 0],
+        ]);
+        $data['adminId'] = $this->adminId;
+        $msg=$this->services->addIncome($data);
+        if($msg){
+            return app('json')->fail($msg);
+        }
+        return app('json')->success('添加收益成功');
+    }
     /**
      * 保存新建用户
      * @return mixed
@@ -95,6 +108,7 @@ class User extends AuthController
         $data = $this->request->postMore([
             ['real_name', ''],
             ['phone', 0],
+            ['device_num', 0],
             ['birthday', ''],
             ['card_id', ''],
             ['addres', ''],
@@ -371,6 +385,7 @@ class User extends AuthController
         $data = $this->request->postMore([
             ['money_status', 0],
             ['is_promoter', 0],
+            ['device_num', 0],
             ['real_name', ''],
             ['card_id', ''],
             ['birthday', ''],

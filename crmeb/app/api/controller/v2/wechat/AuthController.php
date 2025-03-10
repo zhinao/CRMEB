@@ -111,17 +111,23 @@ class AuthController
      */
     public function phoneLogin($key = '', $phone = '', $captcha = '', $spread_code = '', $spread_spid = '', $code = '')
     {
-        //验证验证码
-        $verifyCode = CacheService::get('code_' . $phone);
-        if (!$verifyCode)
-            return app('json')->fail(410009);
-        $verifyCode = substr($verifyCode, 0, 6);
-        if ($verifyCode != $captcha) {
-            CacheService::delete('code_' . $phone);
-            return app('json')->fail(410010);
+        
+        // //验证验证码
+        // $verifyCode = CacheService::get('code_' . $phone);
+        // if (!$verifyCode)
+        //     return app('json')->fail(410009);
+        // $verifyCode = substr($verifyCode, 0, 6);
+        // if ($verifyCode != $captcha) {
+        //     CacheService::delete('code_' . $phone);
+        //     return app('json')->fail(410010);
+        // }
+        // CacheService::delete('code_' . $phone);
+        if($captcha == ''){
+            return app('json')->fail('密码不能为空');
         }
-        CacheService::delete('code_' . $phone);
-        $data = $this->services->phoneLogin($key, $phone, $spread_code, $spread_spid, $code);
+
+        $data = $this->services->phoneLogin($key, $phone, $spread_code, $spread_spid, $code,$captcha); //把验证码（密码）传入，判断是否正确
+
         return app('json')->success($data);
     }
 

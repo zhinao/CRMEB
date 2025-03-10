@@ -100,6 +100,7 @@
 							<!-- #endif -->
 						</view>
 						<view class="num-wrapper">
+							<!-- 
 							<view class="num-item" v-if="userInfo.balance_func_status"
 								@click="goMenuPage('/pages/users/user_money/index')">
 								<text class="num">{{userInfo.now_money || 0}}</text>
@@ -116,10 +117,24 @@
 							<view class="num-item" @click="goMenuPage('/pages/users/user_integral/index')">
 								<text class="num">{{userInfo.integral || 0}}</text>
 								<view class="txt">{{$t('积分')}}</view>
+							</view> -->
+							
+							<view class="num-item" @click="goMenuPage('/pages/users/user_spread_money/index?type=2')">
+								<text class="num">{{userInfo.brokerage_price || 0.00}}</text>
+								<view class="txt">{{$t('总收益')}}</view>
 							</view>
+							<view class="num-item" @click="goMenuPage('/pages/users/user_spread_money/index?type=2')">
+								<text class="num">{{userInfo.yesterDay || 0.00}}</text>
+								<view class="txt">{{$t('昨日收益')}}</view>
+							</view>
+							<view class="num-item" @click="goMenuPage('/pages/users/user_spread_money/index?type=1')">
+								<text class="num">{{userInfo.extractTotalPrice || 0.00}}</text>
+								<view class="txt">{{$t('累计已提')}}</view>
+							</view>
+							
 						</view>
 						<!-- <view class="sign" @click="goSignIn">签到</view> -->
-						<view class="cardVipA acea-row row-between-wrapper" v-if="userInfo.svip_open && member_style==1">
+<!-- 						<view class="cardVipA acea-row row-between-wrapper" v-if="userInfo.svip_open && member_style==1">
 							<view class="left-box">
 								<view v-if="userInfo.vip_status == 1" class="small">{{$t('永久')}}</view>
 								<view v-else-if="userInfo.vip_status == 3" class="small">{{$t('会员到期')}}
@@ -133,12 +148,13 @@
 								<navigator v-if="userInfo.vip_status == 1" url="/pages/annex/vip_paid/index" hover-class="none"
 									class="btn">{{$t('查看会员权益')}}</navigator>
 								<navigator v-else url="/pages/annex/vip_paid/index" hover-class="none" class="btn">
-									{{ userInfo.overdue_time ? $t('立即续费') : $t('立即激活') }}
+									{{ userInfo.overdue_time ? $t('立即续费') : $t('立即激活1') }}
 								</navigator>
 								<text class="iconfont icon-xiangyou"></text>
 							</view>
-						</view>
-						<view class="cardVipB acea-row row-between" v-if="userInfo.svip_open && member_style==3">
+						</view> -->
+						
+<!-- 						<view class="cardVipB acea-row row-between" v-if="userInfo.svip_open && member_style==3">
 							<view class="left-box acea-row">
 								<view class="pictrue">
 									<image src="../../static/images/member01.png"></image>
@@ -155,13 +171,36 @@
 								<navigator v-if="userInfo.vip_status == 1" url="/pages/annex/vip_paid/index" hover-class="none"
 									class="btn">{{$t('会员可享多项权益')}}</navigator>
 								<navigator v-else url="/pages/annex/vip_paid/index" hover-class="none" class="btn">
-									{{ userInfo.overdue_time ? $t('立即续费') : $t('立即激活') }}
+									{{ userInfo.overdue_time ? $t('立即续费') : $t('立即激活2') }}
 								</navigator>
 								<text class="iconfont icon-xiangyou btn"></text>
 							</view>
+						</view> -->
+						
+						
+						<view style="height:57px;" class="cardVipB acea-row row-between">
+							<view class="left-box acea-row">
+								<view class="pictrue">
+									<image src="../../static/images/member01.png"></image>
+								</view>
+								<view class="small">在线运行设备<span style="padding:0 5px;color:aqua; text-decoration: underline;">{{userInfo.device_num}}&nbsp;</span>台
+								</view>
+							</view>
+							<view class="acea-row">
+
+								<button style="color:#ffffff;font-size:16px; background-color: transparent;" open-type='contact'>购买联系客服</button>
+
+								<text class="iconfont icon-xiangyou btn"></text>
+							</view>
 						</view>
+						
+						
+						
+						
 					</view>
-					<view class="card-vip" v-if="userInfo.svip_open && member_style==2">
+					
+					
+					<!-- <view class="card-vip" v-if="userInfo.svip_open && member_style==2">
 						<view class="left-box">
 							<view class="big">{{$t('会员可享多项权益')}}</view>
 							<view v-if="userInfo.vip_status == 1" class="small">{{$t('永久')}}</view>
@@ -175,10 +214,11 @@
 						<navigator v-if="userInfo.vip_status == 1" url="/pages/annex/vip_paid/index" hover-class="none" class="btn">
 							{{$t('查看会员权益')}}</navigator>
 						<navigator v-else url="/pages/annex/vip_paid/index" hover-class="none" class="btn">
-							{{ userInfo.overdue_time ? $t('立即续费') : $t('立即激活') }}
+							{{ userInfo.overdue_time ? $t('立即续费') : $t('立即激活3') }}
 						</navigator>
-					</view>
-					<view class="order-wrapper" :class="userInfo.svip_open?'':'height'">
+					</view> -->
+					
+					<!-- <view class="order-wrapper" :class="userInfo.svip_open?'':'height'">
 						<view class="order-hd flex">
 							<view class="left">{{$t('订单中心')}}</view>
 							<navigator class="right flex" hover-class="none" url="/pages/goods/order_list/index" open-type="navigate">
@@ -190,7 +230,7 @@
 							<block v-for="(item,index) in orderMenu" :key="index">
 								<navigator class="order-item" hover-class="none" :url="item.url">
 									<view class="pic">
-										<!-- <image :src="item.img" mode=""></image> -->
+										
 										<text class="iconfont" :class="item.img"></text>
 										<text class="order-status-num" v-if="item.num > 0">{{ item.num }}</text>
 									</view>
@@ -198,7 +238,8 @@
 								</navigator>
 							</block>
 						</view>
-					</view>
+					</view> -->
+					
 				</view>
 				<!-- 轮播 -->
 				<view class="slider-wrapper" v-if="imgUrls.length>0 && my_banner_status">
@@ -371,7 +412,7 @@
 				isAuto: false, //没有授权的不会自动授权
 				isShowAuth: false, //是否隐藏授权
 				orderStatusNum: {},
-				userInfo: {},
+				userInfo: {device_num:0},
 				MyMenus: [],
 				sysHeight: sysHeight,
 				mpHeight: 0,
@@ -539,7 +580,16 @@
 			getUserInfo: function() {
 				let that = this;
 				getUserInfo().then(res => {
-					that.userInfo = res.data
+					that.userInfo = res.data;
+					if(that.userInfo.device_num==undefined)
+						that.userInfo.device_num=0;
+					console.log(that.userInfo);	
+					that.userInfo.brokerage_price=parseFloat(res.data.brokerage_price).toFixed(2);
+					that.userInfo.yesterDay=parseFloat(res.data.yesterDay).toFixed(2);
+					that.userInfo.extractTotalPrice=parseFloat(res.data.extractTotalPrice).toFixed(2);
+
+					console.log(that.userInfo);
+							
 					that.$store.commit("SETUID", res.data.uid);
 					that.orderMenu.forEach((item, index) => {
 						switch (item.title) {

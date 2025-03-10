@@ -19,6 +19,13 @@
               <el-input class="form-sty" v-model="formItem.phone" placeholder="请输入手机号码"></el-input>
             </el-form-item>
           </div>
+
+          <div class="item">
+            <el-form-item label="设备数量：" prop="device_num">
+              <el-input class="form-sty" v-model="formItem.device_num" placeholder="请输入设备数量"></el-input>
+            </el-form-item>
+          </div>
+
           <div class="item">
             <el-form-item label="生日：">
               <el-date-picker
@@ -215,6 +222,7 @@ export default {
         uid: 0,
         real_name: '',
         phone: '',
+        device_num:0,
         birthday: '',
         card_id: '',
         addres: '',

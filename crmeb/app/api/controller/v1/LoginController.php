@@ -209,6 +209,8 @@ class LoginController
      */
     public function register(Request $request)
     {
+        return app('json')->fail('暂未开放注册');
+
         [$account, $captcha, $password, $spread] = $request->postMore([['account', ''], ['captcha', ''], ['password', ''], ['spread', 0]], true);
         try {
             validate(RegisterValidates::class)->scene('register')->check(['account' => $account, 'captcha' => $captcha, 'password' => $password]);
@@ -284,16 +286,21 @@ class LoginController
             return app('json')->fail($e->getError());
         }
 
-        //验证验证码
-        $verifyCode = CacheService::get('code_' . $phone);
-        if (!$verifyCode)
-            return app('json')->fail(410009);
-        $verifyCode = substr($verifyCode, 0, 6);
-        if ($verifyCode != $captcha) {
-            return app('json')->fail(410010);
-        }
+        // //验证验证码
+        // $verifyCode = CacheService::get('code_' . $phone);
+        // if (!$verifyCode)
+        //     return app('json')->fail(410009);
+        // $verifyCode = substr($verifyCode, 0, 6);
+        // if ($verifyCode != $captcha) {
+        //     return app('json')->fail(410010);
+        // }
+
         $user_type = $request->getFromType() ? $request->getFromType() : 'h5';
         $token = $this->services->mobile($phone, $spread, $user_type);
+        $pwd=$token['pwd'];
+        if ($pwd !== md5((string)$captcha))
+            return app('json')->fail("密码错误");
+
         if ($token) {
             CacheService::delete('code_' . $phone);
             return app('json')->success(410001, $token);

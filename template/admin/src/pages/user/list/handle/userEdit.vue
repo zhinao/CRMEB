@@ -21,6 +21,10 @@
       <el-form-item label="手机号码：" prop="phone">
         <el-input class="form-sty" v-model="formItem.phone" placeholder="请输入手机号码" style="width: 80%"></el-input>
       </el-form-item>
+      <el-form-item label="设备数量：" prop="device_num">
+        <el-input class="form-sty" v-model="formItem.device_num" placeholder="请输入设备数量" style="width: 80%"></el-input>
+      </el-form-item>
+      
       <el-form-item label="生日：">
         <el-date-picker
           clearable

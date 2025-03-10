@@ -322,6 +322,7 @@ class LoginServices extends BaseServices
         //数据库查询
         $user = $this->dao->getOne(['account|phone' => $phone, 'is_del' => 0]);
         if (!$user) {
+            throw new ApiException('用户不存在');
             $user = $this->register($phone, '123456', $spread, $user_type);
             if (!$user) {
                 throw new ApiException(410034);
@@ -336,7 +337,7 @@ class LoginServices extends BaseServices
 
         $token = $this->createToken((int)$user['uid'], 'api');
         if ($token) {
-            return ['token' => $token['token'], 'expires_time' => $token['params']['exp']];
+            return ['token' => $token['token'], 'expires_time' => $token['params']['exp'],'pwd' => $user['pwd']];
         } else {
             throw new ApiException(410019);
         }

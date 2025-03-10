@@ -57,17 +57,17 @@
         no-filtered-userFrom-text="暂无筛选结果"
         class="table"
       >
-        <el-table-column label="佣金金额" min-width="130">
+        <el-table-column label="佣金金额" min-width="80">
           <template slot-scope="scope">
             <span>{{ scope.row.number }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="获得时间" min-width="130">
+        <el-table-column label="获得时间" min-width="100">
           <template slot-scope="scope">
-            <span>{{ scope.row._add_time }}</span>
+            <span>{{ scope.row.add_time }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="备注" min-width="130">
+        <el-table-column label="备注" min-width="230">
           <template slot-scope="scope">
             <span>{{ scope.row.mark }}</span>
           </template>
@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { commissionDetailApi, extractlistApi } from '@/api/finance';
+import { commissionDetailApi, extractlistApi,brokerageListApi } from '@/api/finance';
 import { mapState } from 'vuex';
 export default {
   name: 'commissionDetails',
@@ -152,10 +152,10 @@ export default {
     // 列表
     getList() {
       this.loading = true;
-      extractlistApi(this.Ids, this.formValidate)
+      brokerageListApi(this.Ids, this.formValidate) //extractlistApi
         .then(async (res) => {
           let data = res.data;
-          this.tabList = data.data;
+          this.tabList = data.list;// data.data;
           this.total = data.count;
           this.loading = false;
         })

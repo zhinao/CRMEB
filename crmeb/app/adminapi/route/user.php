@@ -47,8 +47,10 @@ Route::group('user', function () {
         Route::delete('del_level/:id', 'v1.user.User/del_level')->option(['real_name' => '清除用户等级']);
         //编辑其他
         Route::get('edit_other/:id', 'v1.user.User/edit_other')->option(['real_name' => '修改积分余额表单']);
+        //添加收益
+        Route::post('add_income', 'v1.user.User/add_income')->option(['real_name' => '添加收益']);
         //编辑其他
-        Route::put('update_other/:id', 'v1.user.User/update_other')->option(['real_name' => '修改积分余额']);
+        Route::put('update_other/:id', 'v1.user.User/update_other')->option(['real_name' => '修改积分余额表单']);
         //修改用户状态
         Route::put('set_status/:status/:id', 'v1.user.User/set_status')->option(['real_name' => '修改用户状态']);
         //获取指定用户的信息
