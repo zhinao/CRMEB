@@ -15,8 +15,8 @@
         </div>
         <!-- <el-button class="grey" v-db-click @click="toCrmeb()" v-if="status === 1">进入官网</el-button> -->
         <div>
-          <el-button type="primary" v-db-click @click="toCrmeb()" v-if="status === 1">进入官网</el-button>
-          <el-button type="primary" v-db-click @click="payment('bz')" v-if="status !== 1">购买授权</el-button>
+          <!-- <el-button type="primary" v-db-click @click="toCrmeb()" v-if="status === 1">进入官网</el-button>
+          <el-button type="primary" v-db-click @click="payment('bz')" v-if="status !== 1">购买授权</el-button> -->
         </div>
       </div>
     </el-card>

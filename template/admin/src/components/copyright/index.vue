@@ -3,11 +3,11 @@
     <div class="ivu-global-footer-links" v-if="!copyright">
       <a :href="item.href" target="_blank" v-for="(item, index) in links" :key="index">{{ item.title }}</a>
     </div>
-    <div class="ivu-global-footer-copyright" v-if="copyright">{{ copyright }}</div>
+    <!-- <div class="ivu-global-footer-copyright" v-if="copyright">{{ copyright }}</div>
     <div class="ivu-global-footer-copyright" v-else>
       Copyright © 2014-2024
       <a href="https://www.crmeb.com" target="_blank">{{ version }}</a>
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
@@ -17,21 +17,21 @@ export default {
   data() {
     return {
       links: [
-        {
-          title: '官网',
-          key: '官网',
-          href: 'https://www.crmeb.com',
-        },
-        {
-          title: '社区',
-          key: '社区',
-          href: 'http://q.crmeb.com',
-        },
-        {
-          title: '文档',
-          key: '文档',
-          href: 'http://doc.crmeb.com',
-        },
+        // {
+        //   title: '官网',
+        //   key: '官网',
+        //   href: 'https://www.crmeb.com',
+        // },
+        // {
+        //   title: '社区',
+        //   key: '社区',
+        //   href: 'http://q.crmeb.com',
+        // },
+        // {
+        //   title: '文档',
+        //   key: '文档',
+        //   href: 'http://doc.crmeb.com',
+        // },
       ],
       copyright: '',
       version: '',

@@ -222,24 +222,24 @@ export default {
           this.$store.commit('userInfo/newOrderAudioLink', data.newOrderAudioLink);
           this.login_captcha = 0;
           try {
-            if (data.queue === false) {
-              this.$notify.warning({
-                title: '温馨提示',
-                dangerouslyUseHTMLString: true,
-                message:
-                  '您的【消息队列】未开启，没有开启会导致异步任务无法执行。请尽快执行命令开启！！<a href="https://doc.crmeb.com/single/v54/13695" target="_blank">点击查看开启方法</a>',
-                duration: 30000,
-              });
-            }
-            if (data.timer === false) {
-              this.$notify.warning({
-                title: '温馨提示',
-                dangerouslyUseHTMLString: true,
-                message:
-                  '您的【定时任务】未开启，没有开启会导致自动收货、未支付自动取消订单、订单自动好评、拼团到期退款等任务无法正常执行。请尽快执行命令开启！！<a href="https://doc.crmeb.com/single/v54/13694" target="_blank">点击查看开启方法</a>',
-                duration: 30000,
-              });
-            }
+            // if (data.queue === false) {
+            //   this.$notify.warning({
+            //     title: '温馨提示',
+            //     dangerouslyUseHTMLString: true,
+            //     message:
+            //       '您的【消息队列】未开启，没有开启会导致异步任务无法执行。请尽快执行命令开启！！<a href="https://doc.crmeb.com/single/v54/13695" target="_blank">点击查看开启方法</a>',
+            //     duration: 30000,
+            //   });
+            // }
+            // if (data.timer === false) {
+            //   this.$notify.warning({
+            //     title: '温馨提示',
+            //     dangerouslyUseHTMLString: true,
+            //     message:
+            //       '您的【定时任务】未开启，没有开启会导致自动收货、未支付自动取消订单、订单自动好评、拼团到期退款等任务无法正常执行。请尽快执行命令开启！！<a href="https://doc.crmeb.com/single/v54/13694" target="_blank">点击查看开启方法</a>',
+            //     duration: 30000,
+            //   });
+            // }
 
             this.checkSocket();
           } catch (e) {}
@@ -280,28 +280,28 @@ export default {
           socket.close();
         };
         socket.onerror = (err) => {
-          if (!isNotice) {
-            isNotice = true;
-            this.$notify.warning({
-              title: '温馨提示',
-              message:
-                '您的【长连接】未开启，没有开启会导致系统默认客服无法使用,后台订单通知无法收到。请尽快执行命令开启！！<a href="https://doc.crmeb.com/single/v54/13693" target="_blank">点击查看开启方法</a>',
-              dangerouslyUseHTMLString: true,
-              duration: 30000,
-            });
-          }
+          // if (!isNotice) {
+          //   isNotice = true;
+          //   this.$notify.warning({
+          //     title: '温馨提示',
+          //     message:
+          //       '您的【长连接】未开启，没有开启会导致系统默认客服无法使用,后台订单通知无法收到。请尽快执行命令开启！！<a href="https://doc.crmeb.com/single/v54/13693" target="_blank">点击查看开启方法</a>',
+          //     dangerouslyUseHTMLString: true,
+          //     duration: 30000,
+          //   });
+          // }
         };
         socket.onclose = (err) => {
-          if (!isNotice) {
-            isNotice = true;
-            this.$notify.warning({
-              title: '温馨提示',
-              message:
-                '您的【长连接】未开启，没有开启会导致系统默认客服无法使用,后台订单通知无法收到。请尽快执行命令开启！！<a href="https://doc.crmeb.com/single/v54/13693" target="_blank">点击查看开启方法</a>',
-              dangerouslyUseHTMLString: true,
-              duration: 30000,
-            });
-          }
+          // if (!isNotice) {
+          //   isNotice = true;
+          //   this.$notify.warning({
+          //     title: '温馨提示',
+          //     message:
+          //       '您的【长连接】未开启，没有开启会导致系统默认客服无法使用,后台订单通知无法收到。请尽快执行命令开启！！<a href="https://doc.crmeb.com/single/v54/13693" target="_blank">点击查看开启方法</a>',
+          //     dangerouslyUseHTMLString: true,
+          //     duration: 30000,
+          //   });
+          // }
         };
       });
     },
