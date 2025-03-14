@@ -40,6 +40,7 @@ class UserBrokerageController
             ['type']
         ]);
         $uid = (int)$request->uid();
+        return app('json')->fail('暂无数据');
         return app('json')->success($this->services->brokerageRank($uid, $data['type']));
     }
 }

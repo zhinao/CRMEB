@@ -454,6 +454,7 @@ class UserBillController
             ['type']
         ]);
         $uid = (int)$request->uid();
+        //return app('json')->fail('暂无数据');
         return app('json')->success($this->services->brokerage_rank($uid, $data['type']));
     }
 
