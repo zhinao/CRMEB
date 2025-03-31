@@ -800,14 +800,14 @@ class UserServices extends BaseServices
                     // 添加佣金记录
                     /** @var UserBrokerageServices $userBrokerageServices */
                     $userBrokerageServices = app()->make(UserBrokerageServices::class);
-                    $userBrokerageServices->income($type, $uid, [
+                    $userBrokerageServices->income2($type, $uid, [
                         'nickname' => $user['nickname'],
                         'IncomeDate' => $IncomeDate,
                         'IncomePrice' => $IncomePrice,
                         'device_num' => $device_num,
                         'number' => floatval($price),
                         'frozen_time' => $frozen_time
-                    ], $balance, '');
+                    ], $balance, '',strtotime($IncomeDate));
                 }
 
             }

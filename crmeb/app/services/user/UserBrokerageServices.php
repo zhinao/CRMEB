@@ -188,6 +188,34 @@ class UserBrokerageServices extends BaseServices
         return $this->dao->save($data);
     }
 
+
+    public function income2(string $type, int $uid, $number, $balance, $linkId,$add_time)
+    {
+        $data = $this->incomeData[$type] ?? null;
+        if (!$data) {
+            return true;
+        }
+        $data['uid'] = $uid;
+        $data['balance'] = $balance ?? 0;
+        $data['link_id'] = $linkId;
+        if (is_array($number)) {
+            $key = array_keys($number);
+            $key = array_map(function ($item) {
+                return '{%' . $item . '%}';
+            }, $key);
+            $value = array_values($number);
+            $data['number'] = $number['number'] ?? 0;
+            $data['frozen_time'] = $number['frozen_time'] ?? 0;
+            $data['mark'] = str_replace($key, $value, $data['mark']);
+        } else {
+            $data['number'] = $number;
+            $data['mark'] = str_replace(['{%number%}'], $number, $data['mark']);
+        }
+        $data['add_time'] = $add_time;//time();
+
+        return $this->dao->save($data);
+    }
+
     /**
      * 某个用户佣金总和
      * @param int $uid
