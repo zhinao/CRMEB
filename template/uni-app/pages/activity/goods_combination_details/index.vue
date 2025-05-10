@@ -1543,7 +1543,7 @@
 		z-index: 277;
 		border-top: 1rpx solid #f0f0f0;
 		height: 100rpx;
-		height: calc(100rpx+ constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
+		height: calc(100rpx + constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
 		height: calc(100rpx + env(safe-area-inset-bottom)); ///兼容 IOS>11.2/
 		background-color: rgba(255, 255, 255, 0.85);
 		backdrop-filter: blur(10px);
@@ -1670,7 +1670,7 @@
 		margin-top: 10rpx;
 	}
 
-	/deep/.mask {
+	::v-deep .mask {
 		z-index: 99 !important;
 	}
 

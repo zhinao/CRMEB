@@ -282,8 +282,8 @@ radio .uni-radio-input {
 }
 
 radio .uni-radio-input.uni-radio-input-checked {
-	border: 1px solid var(--view-theme) !important;
-	background-color: var(--view-theme) !important
+/* 	border: 1px solid var(--view-theme) !important;
+	background-color: var(--view-theme) !important */
 }
 
 checkbox .wx-checkbox-input {
@@ -439,7 +439,7 @@ checkbox .uni-checkbox-input.uni-checkbox-input-checked::before {
 .uni-p-b-98 {
 	height: 100rpx;
 	/* 兼容 IOS<11.2 */
-	height: calc(100rpx+ constant(safe-area-inset-bottom));
+	height: calc(100rpx + constant(safe-area-inset-bottom));
 	/* 兼容 IOS>11.2 */
 	height: calc(100rpx + env(safe-area-inset-bottom));
 }

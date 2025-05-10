@@ -111,10 +111,10 @@
 
 	.specialArea .assemble {
 
-		/deep/,
-		/deep/image,
-		/deep/.easy-loadimage,
-		/deep/uni-image {
+		::v-deep ,
+		::v-deep image,
+		::v-deep .easy-loadimage,
+		::v-deep uni-image {
 
 			width: 336rpx;
 			height: 300rpx;
@@ -157,10 +157,10 @@
 
 	.specialArea .item {
 
-		/deep/,
-		/deep/image,
-		/deep/.easy-loadimage,
-		/deep/uni-image {
+		::v-deep ,
+		::v-deep image,
+		::v-deep .easy-loadimage,
+		::v-deep uni-image {
 
 			width: 100%;
 			height: 146rpx;

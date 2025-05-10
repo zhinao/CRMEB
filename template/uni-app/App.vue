@@ -328,6 +328,8 @@ export default {
 @import 'static/css/guildford.css';
 @import 'static/css/style.scss';
 
+
+
 view {
 	box-sizing: border-box;
 }
@@ -369,4 +371,7 @@ page {
 	width: 100%;
 	height: 100vh;
 }
+
+
+
 </style>

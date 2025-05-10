@@ -801,7 +801,7 @@ page {
 	background-color: #fff;
 }
 
-/deep/.product-window.joinCart {
+::v-deep .product-window.joinCart {
 	z-index: 999;
 }
 
@@ -813,11 +813,11 @@ page {
 }
 
 .goodCate {
-	/deep/.mask {
+	::v-deep .mask {
 		z-index: 99;
 	}
 
-	/deep/.attrProduct {
+	::v-deep .attrProduct {
 		.mask {
 			z-index: 100;
 		}
@@ -1062,7 +1062,7 @@ page {
 				margin-top: 228rpx;
 				padding: 0 20rpx 0 20rpx;
 
-				/deep/.item {
+				::v-deep .item {
 					margin-bottom: 33rpx !important;
 
 					// .pictrue {
@@ -1108,7 +1108,7 @@ page {
 		z-index: 101;
 		box-sizing: border-box;
 		padding: 12rpx 30rpx;
-		padding-bottom: calc(12rpx+ constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
+		padding-bottom: calc(12rpx + constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
 		padding-bottom: calc(12rpx + env(safe-area-inset-bottom)); ///兼容 IOS>11.2/
 		.cartIcon {
 			width: 124rpx;

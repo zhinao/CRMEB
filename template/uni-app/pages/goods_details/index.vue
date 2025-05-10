@@ -1707,7 +1707,7 @@ export default {
 	z-index: 277;
 	border-top: 1rpx solid #f0f0f0;
 	height: 100rpx;
-	height: calc(100rpx+ constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
+	height: calc(100rpx + constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
 	height: calc(100rpx + env(safe-area-inset-bottom)); ///兼容 IOS>11.2/
 	transform: translate3d(0, 100%, 0);
 	transition: all 0.3s cubic-bezier(0.25, 0.5, 0.5, 0.9);

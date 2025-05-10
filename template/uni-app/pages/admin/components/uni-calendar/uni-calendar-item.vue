@@ -113,12 +113,12 @@ export default {
 
 .uni-calendar-item__weeks-box-text {
 	font-size: $uni-font-size-base;
-	color: $uni-text-color;
+	color: #333;
 }
 
 .uni-calendar-item__weeks-lunar-text {
 	font-size: $uni-font-size-sm;
-	color: $uni-text-color;
+	color: #333;
 }
 
 .uni-calendar-item__weeks-box-item {
@@ -145,7 +145,7 @@ export default {
 
 .uni-calendar-item--disable {
 	background-color: rgba(249, 249, 249, $uni-opacity-disabled);
-	color: $uni-text-color-disable;
+	color: #333-disable;
 }
 
 .uni-calendar-item--isDay-text {

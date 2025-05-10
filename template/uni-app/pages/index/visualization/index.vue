@@ -643,12 +643,12 @@
 		margin: 20rpx 0 !important;
 
 		/* #ifdef MP */
-		/deep/.swiperBg {
+		::v-deep .swiperBg {
 			margin: 20rpx 0 !important;
 		}
 
 		/* #endif */
-		/deep/.swiper {
+		::v-deep .swiper {
 			swiper,
 			.swiper-item,
 			image {

@@ -327,7 +327,7 @@ export default {
 	font-size: 12px;
 	border-top-left-radius: 25px;
 	border-bottom-left-radius: 25px;
-	color: $uni-text-color;
+	color: #333;
 	background-color: $uni-bg-color-hover;
 }
 
@@ -335,7 +335,7 @@ export default {
 	text-align: center;
 	width: 100px;
 	font-size: $uni-font-size-base;
-	color: $uni-text-color;
+	color: #333;
 }
 
 .uni-calendar__header-btn-box {
@@ -352,7 +352,7 @@ export default {
 .uni-calendar__header-btn {
 	width: 10px;
 	height: 10px;
-	border-left-color: $uni-text-color-placeholder;
+	border-left-color: #333-placeholder;
 	border-left-style: solid;
 	border-left-width: 2px;
 	border-top-color: $uni-color-subtitle;
@@ -418,7 +418,7 @@ export default {
 .uni-calendar__box-bg-text {
 	font-size: 200px;
 	font-weight: bold;
-	color: $uni-text-color-grey;
+	color: #333-grey;
 	opacity: 0.1;
 	text-align: center;
 	/* #ifndef APP-NVUE */

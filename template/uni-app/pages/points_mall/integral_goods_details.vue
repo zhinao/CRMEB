@@ -917,7 +917,7 @@
 		display: flex;
 		align-items: center;
 		flex-wrap: nowrap;
-		height: calc(100rpx+ constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
+		height: calc(100rpx + constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
 		height: calc(100rpx + env(safe-area-inset-bottom)); ///兼容 IOS>11.2/
 	}
 
@@ -1040,7 +1040,7 @@
 		margin-top: 10rpx;
 	}
 
-	/deep/.mask {
+	::v-deep .mask {
 		z-index: 99 !important;
 	}
 

@@ -206,7 +206,7 @@
 				margin-left: 16rpx;
 			}
 
-			/deep/.time {
+			::v-deep .time {
 				font-size: 24rpx;
 
 				.styleAll {

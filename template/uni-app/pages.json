@@ -60,10 +60,18 @@
 				}
 
 			}
+		},
+		{
+			"path" : "pages/qa/qa",
+			"style" : 
+			{
+				"navigationBarTitleText" : ""
+			}
 		}
 
 	],
-	"subPackages": [{ // 模块分包
+	"subPackages": [
+		{ // 模块分包
 			"root": "pages/extension",
 			"name": "extension",
 			"pages": [{
@@ -330,7 +338,9 @@
 					}
 				}
 			]
-		}, {
+		},
+		
+		{
 			"root": "pages/users",
 			"name": "users",
 			"pages": [{

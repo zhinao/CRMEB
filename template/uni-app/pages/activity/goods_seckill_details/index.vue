@@ -1298,7 +1298,7 @@
 		box-sizing: border-box;
 	}
 
-	.product-con .nav /deep/.time .styleAll {
+	.product-con .nav ::v-deep .time .styleAll {
 		padding: 0 6rpx;
 		font-size: 22rpx;
 		color: var(--view-theme);
@@ -1393,7 +1393,7 @@
 		z-index: 277;
 		border-top: 1rpx solid #f0f0f0;
 		height: 100rpx;
-		height: calc(100rpx+ constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
+		height: calc(100rpx + constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
 		height: calc(100rpx + env(safe-area-inset-bottom)); ///兼容 IOS>11.2/
 		transform: translate3d(0, 100%, 0);
 		transition: all .3s cubic-bezier(.25, .5, .5, .9);
@@ -1522,7 +1522,7 @@
 		margin-top: 10rpx;
 	}
 
-	/deep/.mask {
+	::v-deep .mask {
 		z-index: 99 !important;
 	}
 

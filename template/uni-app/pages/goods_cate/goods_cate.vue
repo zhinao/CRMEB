@@ -85,7 +85,7 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-/deep/.mask {
+::v-deep .mask {
 	z-index: 99;
 }
 ::-webkit-scrollbar {

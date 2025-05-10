@@ -52,10 +52,10 @@
 		margin: 0 20rpx;
 		border-radius: 24rpx;
 	}
-	/deep/uni-video{
+	::v-deep uni-video{
 		width: 100%!important;
 	}
-	/deep/video{
+	::v-deep video{
 		width: 100%!important;
 	}
 </style>

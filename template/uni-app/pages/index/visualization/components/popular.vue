@@ -231,7 +231,7 @@
 </script>
 
 <style lang="scss" scoped>
-	/deep/.uni-scroll-view-content,
+	::v-deep .uni-scroll-view-content,
 	.scroll-view_x {
 		display: flex;
 		flex-wrap: nowrap;
@@ -346,10 +346,10 @@
 
 	.hotList .list .item .pictrue {
 
-		/deep/,
-		/deep/image,
-		/deep/.easy-loadimage,
-		/deep/uni-image {
+		::v-deep ,
+		::v-deep image,
+		::v-deep .easy-loadimage,
+		::v-deep uni-image {
 
 			width: 180rpx;
 			height: 180rpx;

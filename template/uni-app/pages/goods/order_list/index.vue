@@ -527,10 +527,10 @@
 		width: 120rpx;
 		height: 120rpx;
 
-		/deep/,
-		/deep/image,
-		/deep/.easy-loadimage,
-		/deep/uni-image {
+		::v-deep ,
+		::v-deep image,
+		::v-deep .easy-loadimage,
+		::v-deep uni-image {
 
 			width: 120rpx;
 			height: 120rpx;

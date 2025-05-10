@@ -236,7 +236,7 @@
 		//top: 110rpx;
 		/* #endif */
 		// overflow-x: scroll;
-		/deep/ .uni-scroll-view-content{
+		::v-deep  .uni-scroll-view-content{
 			display: flex;
 			align-items: center;
 			width: max-content;

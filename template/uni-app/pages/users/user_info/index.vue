@@ -539,7 +539,7 @@
 
 	.personal-data {
 		padding-bottom: 50rpx;
-		padding-bottom: calc(50rpx+ constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
+		padding-bottom: calc(50rpx + constant(safe-area-inset-bottom)); ///兼容 IOS<11.2/
 		padding-bottom: calc(50rpx + env(safe-area-inset-bottom)); ///兼容 IOS>11.2/
 	}
 
@@ -555,7 +555,7 @@
 		color: #282828;
 	}
 
-	/deep/ .uni-input-input {
+	::v-deep  .uni-input-input {
 		font-size: 28rpx;
 	}
 

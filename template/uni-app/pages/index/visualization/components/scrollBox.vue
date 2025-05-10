@@ -206,10 +206,10 @@
 
 	.scroll-product .item .img-box {
 
-		/deep/,
-		/deep/image,
-		/deep/.easy-loadimage,
-		/deep/uni-image {
+		::v-deep ,
+		::v-deep image,
+		::v-deep .easy-loadimage,
+		::v-deep uni-image {
 
 			width: 160rpx;
 			height: 160rpx;
