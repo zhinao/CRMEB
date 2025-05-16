@@ -90,6 +90,7 @@ class User extends AuthController
         $data = $this->request->postMore([
             ['IncomeDate', ''],
             ['IncomePrice', 0],
+            ['nickname', ''],
         ]);
         $data['adminId'] = $this->adminId;
         $msg=$this->services->addIncome($data);

@@ -767,11 +767,17 @@ class UserServices extends BaseServices
      */
     public function addIncome($array)
     {
+        $where = [];
+        $nickname = $array['nickname'];
 
-        $users=$this->getUserList([],"uid,device_num,nickname,brokerage_price");
+
+        $users=$this->getUserList($where,"uid,device_num,phone,nickname,brokerage_price");
+
 
         $data['adminId'] = $array['adminId'];
         $IncomeDate = $array['IncomeDate'];
+        
+
         //$data['integration'] = (string)$data['integration'];
         $data['money_status']=1;
         $data['is_other'] = true;
@@ -779,9 +785,28 @@ class UserServices extends BaseServices
         if($IncomePrice==0)
             return "收益单价不能为0";
 
-        $type = 'get_self_brokerage2';    
+        $type = 'get_self_brokerage2';  
+        
+        if($nickname)
+        {
+            $nicknames= explode(",",$nickname);
+        }
+
+        
         foreach ($users['list'] as $key => $value) {
             $user=$value;
+            if($nickname)
+            {
+                $name=array_filter($nicknames,function($item)use($user){
+                    if($user['nickname']==$item || $user['uid']==$item || $user['phone']==$item)
+                        return true;
+                });
+                if(!$name)
+                    continue;
+            }
+
+            //echo $user['nickname']."\n";
+
             $device_num=$user['device_num'];
             if($device_num>0)
             {

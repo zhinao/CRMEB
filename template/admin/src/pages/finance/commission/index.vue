@@ -160,7 +160,7 @@ export default {
     AddIncome()
     {
       this.modal_loading = true;
-       let data={IncomeDate:this.IncomeDate,IncomePrice:this.IncomePrice};
+       let data={IncomeDate:this.IncomeDate,IncomePrice:this.IncomePrice,nickname:this.formValidate.nickname};
         addIncome(data).then(async(res) =>{
           console.log(res);
           this.modal_loading = false;

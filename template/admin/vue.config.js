@@ -102,7 +102,7 @@ module.exports = {
     port: 1617, // 端口
     proxy: {
       '/adminapi': {  // 根据实际接口路径调整
-        target: 'http://192.168.110.200/adminapi', // 后端服务地址
+        target: 'http://hao2.danao.net.cn/adminapi', // 后端服务地址
         changeOrigin: true, // 允许跨域
         pathRewrite: {
           '^/adminapi': '' // 重写路径（若后端接口无前缀则保留空）
