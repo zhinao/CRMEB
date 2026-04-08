@@ -35,6 +35,10 @@
 									<view class='bottom'>
 										<view><text class='name'>{{$t(`订单编号`)}}：</text>{{child.order_id}}</view>
 										<view><text class='name'>{{$t(`下单时间`)}}：</text>{{child.time}}</view>
+										
+										<view v-for="(item, key, index) in child._info"><text class='name' :style="{marginRight:index>0?'140rpx':''}">{{index==0?'订单信息：':''}}</text>{{item.cart_info.attrInfo.suk}} * {{item.cart_info.cart_num}}</view>
+										
+										
 										<view class="more" v-if="child.children && child.children.length"
 											@click="open(child)">
 											{{child.open?$t(`收起`):$t(`更多`)}}

@@ -36,7 +36,7 @@ use Guzzle\Http\EntityBody;
 
 /**
  *
- * Class StoreBargainServices
+ * Class StoreBargainServices 砍价
  * @package app\services\activity
  * @method get(int $id, ?array $field) 获取一条数据
  * @method getBargainIdsArray(array $ids, array $field)

@@ -406,10 +406,10 @@ page {
 
 <style lang="scss" scoped>
 	
-::v-deep uni-radio .uni-radio-input.uni-radio-input-checked {
-	border: 1px solid #fdc383 !important;
-	background-color: #fdc383 !important;
-}
+// ::v-deep uni-radio .uni-radio-input.uni-radio-input-checked {
+// 	border: 1px solid #fdc383 !important;
+// 	background-color: #fdc383 !important;
+// }
 
 .input-section {
 	.section-hd {

@@ -21,6 +21,7 @@ use crmeb\services\pay\BasePay;
 use crmeb\services\pay\PayInterface;
 use EasyWeChat\Payment\Order;
 use think\facade\Event;
+use think\facade\Log;
 
 /**
  * Class 微信支付v3
@@ -153,20 +154,30 @@ class V3WechatPay extends BasePay implements PayInterface
      */
     public function merchantPay(string $openid, string $orderId, string $amount, array $options = [])
     {
-        return $this->instance->v3pay->setType($options['type'])->batches(
-            $orderId,
-            $amount,
-            $options['batch_name'],
-            $options['batch_remark'],
-            [
+        Log::write('微信支付V3商家转账开始，订单号：' . $orderId . '，金额：' . $amount . '，openid：' . $openid, 'crmeb');
+        
+        try {
+            $result = $this->instance->v3pay->setType($options['type'])->batches(
+                $orderId,
+                $amount,
+                $options['batch_name'],
+                $options['batch_remark'],
                 [
-                    'out_detail_no' => $orderId,
-                    'transfer_amount' => $amount,
-                    'transfer_remark' => $options['batch_remark'],
-                    'openid' => $openid
+                    [
+                        'out_detail_no' => $orderId,
+                        'transfer_amount' => $amount,
+                        'transfer_remark' => $options['batch_remark'],
+                        'openid' => $openid
+                    ]
                 ]
-            ]
-        );
+            );
+            
+            Log::write('微信支付V3商家转账成功，结果：' . json_encode($result), 'success');
+            return $result;
+        } catch (\Exception $e) {
+            Log::write('微信支付V3商家转账失败：' . $e->getMessage() . '，错误码：' . ($e->getCode() ?: '未知'), 'fail');
+            throw new PayException('微信支付V3商家转账失败：' . $e->getMessage());
+        }
     }
 
     /**

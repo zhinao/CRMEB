@@ -370,6 +370,11 @@ Route::group(function () {
     })->option(['mark' => 'product', 'mark_name' => '商品']);
 
     Route::group(function () {
+        Route::get('qa/wenjuan', 'v1.qa.QaController/wenjuan')->name('qa')->option(['real_name' => '问卷']);
+        Route::post('qa/recommendProducts', 'v1.qa.QaController/recommendProducts')->name('qa')->option(['real_name' => '推荐商品']);
+    })->option(['mark' => 'qa', 'mark_name' => '问答']);
+
+    Route::group(function () {
 
         Route::group(function () {
             //文章分类类

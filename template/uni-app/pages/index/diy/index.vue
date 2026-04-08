@@ -6,6 +6,28 @@
 			<skeleton :show="showSkeleton" :isNodes="isNodes" ref="skeleton" loading="chiaroscuro" selector="skeleton"
 				bgcolor="#FFF"></skeleton>
 			<view class="index skeleton" :style="{visibility: showSkeleton ? 'hidden' : 'visible'}">
+				<!-- 视频播放器 -->
+				<view class="video-container">
+					<video 
+						class="video-player" 
+						src="http://cdn.danao.net.cn/logo.mp4" 
+						:poster="imgHost + '/logo.jpg'"
+						:autoplay="true"
+						:loop="true"
+						:muted="true"
+						:controls="true"
+						:show-fullscreen-btn="true"
+						:show-play-btn="true"
+						:show-center-play-btn="true"
+						object-fit="cover"
+						@loadstart="videoLoading = true"
+						@loadeddata="videoLoading = false"
+						@error="videoLoading = false"
+					></video>
+					<view class="video-loading" v-if="videoLoading">
+						<image :src="imgHost + '/logo.jpg'" mode="aspectFit"></image>
+					</view>
+				</view>
 				<!-- #ifdef H5 -->
 				<view v-for="(item, index) in styleConfig" :key="index">
 					<component :is="item.name" :index="index" :dataConfig="item" @changeBarg="changeBarg"
@@ -43,7 +65,7 @@
 					</promotionList>
 					<richText v-if="item.name == 'richText'" :dataConfig="item" :isSortType="isSortType"></richText>
 					<seckill v-if="item.name == 'seckill' && $permission('seckill')" :dataConfig="item" :isSortType="isSortType"></seckill>
-					<swiperBg v-if="item.name == 'swiperBg'" :dataConfig="item" :isSortType="isSortType"></swiperBg>
+
 					<swipers v-if="item.name == 'swipers'" :dataConfig="item" :isSortType="isSortType"></swipers>
 					<tabNav v-if="item.name == 'tabNav'" :dataConfig="item" @bindHeight="bindHeighta"
 						@bindSortId="bindSortId" :isFixed="isFixed"></tabNav>
@@ -214,7 +236,6 @@
 	import promotionList from './components/promotionList';
 	import richText from './components/richText';
 	import seckill from './components/seckill';
-	import swiperBg from './components/swiperBg';
 	import tabNav from './components/tabNav';
 	import titles from './components/titles';
 	import hotspot from './components/hotspot.vue';
@@ -287,7 +308,6 @@
 			promotionList,
 			richText,
 			seckill,
-			swiperBg,
 			tabNav,
 			titles,
 			hotspot,
@@ -1085,6 +1105,42 @@
 		image {
 			width: 414rpx;
 			height: 304rpx;
+		}
+	}
+
+	.video-container {
+		position: relative;
+		width: 100%;
+		height: 100vh;
+		min-height: 100vh;
+		margin: 0;
+		border-radius: 0;
+		overflow: hidden;
+		background-color: #000;
+
+		.video-player {
+			width: 100%;
+			height: 100%;
+			min-height: 100vh;
+			object-fit: cover;
+		}
+
+		.video-loading {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background-color: #f5f5f5;
+
+			image {
+				width: 200rpx;
+				height: 200rpx;
+				border-radius: 10rpx;
+			}
 		}
 	}
 

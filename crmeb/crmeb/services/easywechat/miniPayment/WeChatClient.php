@@ -90,6 +90,7 @@ class WeChatClient extends AbstractAPI
      */
     public function refundorder(array $order)
     {
+        //throw new \Exception('退款接口已关闭'.json_encode($order));
         $params = [
             'openid' => $order['openid'],
             'mchid' => $this->merchant->merchant_id,

@@ -109,10 +109,14 @@ class WechatPay extends BasePay implements PayInterface
          * REFUND_SOURCE_RECHARGE_FUNDS---可用余额退款
          */
         $refundAccount = $opt['refund_account'] ?? 'REFUND_SOURCE_UNSETTLED_FUNDS';
+
+       //throw new AdminException('退款失败，请联系管理员！'.json_encode($opt));
+
         if (isset($opt['wechat'])) {
             $result = WechatService::refund($outTradeNo, $refundNo, $totalFee, $refundFee, $opUserId, $refundReason, $type, $refundAccount);
         } else {
-            if ($opt['pay_new_weixin_open']) {
+            //throw new PayException('退款失败，请联系管理员！' . json_encode($opt));
+            if ($opt['pay_new_weixin_open'] ) {
                 $result = MiniProgramService::miniRefund($outTradeNo, $totalFee, $refundFee, $opt);
             } else {
                 $result = MiniProgramService::refund($outTradeNo, $refundNo, $totalFee, $refundFee, $opUserId, $refundReason, $type, $refundAccount);

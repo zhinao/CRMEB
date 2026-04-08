@@ -130,9 +130,9 @@
 </script>
 
 <style lang="scss" scoped>
-	::v-deep uni-radio .uni-radio-input {
-		margin-right: 0;
-	}
+	// ::v-deep uni-radio .uni-radio-input {
+	// 	margin-right: 0;
+	// }
 
 	.popup {
 		position: fixed;

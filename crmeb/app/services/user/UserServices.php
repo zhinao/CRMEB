@@ -1642,6 +1642,7 @@ class UserServices extends BaseServices
             'avatar' => $info['avatar'],
             'add_time' => date('Y-m-d H:i:s', $info['add_time']),
             'user_type' => $info['user_type'],
+            'rename' =>$info['rename']
         ]]);
 
         return true;
@@ -2133,6 +2134,40 @@ class UserServices extends BaseServices
             return $res1 && $res2;
         });
     }
+
+
+    //获取团队长uid
+    public function getTeamUid(int $uid)
+    {
+        $userInfo=$this->getTeamUserInfo($uid);
+        if($userInfo!=null){
+            return $userInfo['uid'];
+        }
+        return 0;
+    }
+
+    public function getTeamUserInfo(int $uid)
+    {
+        if (!$uid) {
+            return null;
+        }
+        $userInfo = $this->getUserInfo($uid);
+        $spread_uid=$userInfo['spread_uid'];
+        while ($spread_uid) {
+            $userInfo = $this->getUserInfo($spread_uid);
+            if (!$userInfo) {
+                return null;
+            }
+            $group_id= $userInfo['group_id'];
+            if($group_id==2){//团队长
+                return $userInfo;
+            } 
+            $spread_uid = $userInfo['spread_uid'];
+        }
+        return null;
+    }
+
+
 
     /**
      * 获取上级uid

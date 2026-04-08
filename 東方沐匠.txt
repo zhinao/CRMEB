@@ -12,6 +12,9 @@ f4e3816de08b7998c20a48b4e5a3ffa4
 
 d.danao.net.cn
 
+pages/goods/order_details/index?order_id=${商品订单号}
+
+
 
 
 

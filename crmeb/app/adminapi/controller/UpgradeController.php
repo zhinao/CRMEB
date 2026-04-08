@@ -574,7 +574,9 @@ class UpgradeController
                 } else {
                     if (strpos($item['mark'], '二级')) {
                         $type = 'two_brokerage';
-                    } else {
+                    } else if (strpos($item['mark'], '团队')) {
+                        $type = 'team_brokerage';
+                    } else{
                         $type = 'one_brokerage';
                     }
                 }

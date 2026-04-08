@@ -49,12 +49,13 @@ class OrderCreateAfterJob extends BaseJobs
             /** @var UserServices $userServices */
             $userServices = app()->make(UserServices::class);
             if ($spread_ids) {
-                [$spread_uid, $spread_two_uid] = $spread_ids;
+                [$spread_uid, $spread_two_uid,$spread_team_uid] = $spread_ids;
                 $orderData['spread_uid'] = $spread_uid;
                 $orderData['spread_two_uid'] = $spread_two_uid;
+                $orderData['spread_team_uid'] = $spread_team_uid;
             } else {
                 $spread_uid = $userServices->getSpreadUid($uid);
-                $orderData = ['spread_uid' => 0, 'spread_two_uid' => 0];
+                $orderData = ['spread_uid' => 0, 'spread_two_uid' => 0, 'spread_team_uid' => 0];
                 if ($spread_uid) {
                     $orderData['spread_uid'] = $spread_uid;
                 }
@@ -64,6 +65,13 @@ class OrderCreateAfterJob extends BaseJobs
                         $orderData['spread_two_uid'] = $spread_two_uid;
                     }
                 }
+
+                $spread_team_uid = $userServices->getTeamUid($uid);
+                if ($spread_team_uid) {
+                    $orderData['spread_team_uid'] = $spread_team_uid;
+                }
+
+
             }
             $isCommission = 0;
             if ($orderInfo['combination_id']) {
@@ -77,6 +85,8 @@ class OrderCreateAfterJob extends BaseJobs
                 $orderComputed = app()->make(StoreOrderComputedServices::class);
                 if ($userServices->checkUserPromoter($spread_uid)) $orderData['one_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'one_brokerage', false);
                 if ($userServices->checkUserPromoter($spread_two_uid)) $orderData['two_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'two_brokerage', false);
+                if ($userServices->checkUserPromoter($spread_team_uid)) $orderData['team_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'team_brokerage', false);
+                
                 $orderData['staff_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'staff_brokerage', false);
                 $orderData['agent_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'agent_brokerage', false);
                 $orderData['division_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'division_brokerage', false);

@@ -9,7 +9,11 @@
 // | Author: CRMEB Team <admin@crmeb.com>
 // +----------------------------------------------------------------------
 
+
+
 namespace app\services\order;
+require_once __DIR__ . '/../../../vendor/kuaidi100/Kuaidi100PrintOrder.php';
+use kuaidi100\Kuaidi100PrintOrder;
 
 use app\jobs\MiniOrderJob;
 use app\services\activity\coupon\StoreCouponIssueServices;
@@ -26,6 +30,9 @@ use crmeb\exceptions\ApiException;
 use crmeb\services\FormBuilder as Form;
 use app\services\shipping\ExpressServices;
 use think\facade\Log;
+
+
+
 
 /**
  * 订单发货
@@ -78,11 +85,14 @@ class StoreOrderDeliveryServices extends BaseServices
             }
         }
 
+
+
         /** @var StoreOrderRefundServices $storeOrderRefundServices */
         $storeOrderRefundServices = app()->make(StoreOrderRefundServices::class);
         if ($storeOrderRefundServices->count(['store_order_id' => $id, 'refund_type' => [1, 2, 4, 5], 'is_cancel' => 0, 'is_del' => 0])) {
             throw new AdminException(400475);
         }
+
         return $this->doDelivery($id, $orderInfo, $data);
     }
 
@@ -442,7 +452,9 @@ class StoreOrderDeliveryServices extends BaseServices
         //获取购物车内的商品标题
         /** @var StoreOrderCartInfoServices $orderInfoServices */
         $orderInfoServices = app()->make(StoreOrderCartInfoServices::class);
-        $storeName = $orderInfoServices->getCarIdByProductTitle((int)$orderInfo->id);
+        $storeName = $orderInfoServices->getCarIdByProductTitle((int)$orderInfo->id,true,true);
+        $remark = $orderInfoServices->getCarIdByProductTitle2((int)$orderInfo->id,true,true);
+        //$orderInfo['remark']=$remark;
 
         if (isset($data['pickup_time']) && count($data['pickup_time']) == 2) {
             $data['pickup_start_time'] = $data['pickup_time'][0];
@@ -456,13 +468,17 @@ class StoreOrderDeliveryServices extends BaseServices
         $res = [];
         switch ($type) {
             case 1://快递发货
-                $res = $this->orderDeliverGoods($id, $data, $orderInfo, $storeName);
+                $res = $this->orderDeliverGoods2($id, $data, $orderInfo, $storeName,$remark);
                 event('NoticeListener', [['orderInfo' => $orderInfo, 'storeName' => $storeName, 'data' => $data], 'order_postage_success']);
 
                 //自定义消息-快递发货
                 $orderInfo['storeName'] = $storeName;
+                $orderInfo['delivery_type']='express';
                 $orderInfo['delivery_name'] = $data['delivery_name'];
-                $orderInfo['delivery_id'] = $data['delivery_id'];
+                $orderInfo['delivery_id'] = $res['delivery_id'];
+
+
+
                 $orderInfo['time'] = date('Y-m-d H:i:s');
                 $orderInfo['phone'] = $orderInfo['user_phone'];
                 event('CustomNoticeListener', [$orderInfo['uid'], $orderInfo, 'order_express_success']);
@@ -518,6 +534,7 @@ class StoreOrderDeliveryServices extends BaseServices
      */
     public function orderDeliverGoods(int $id, array $data, $orderInfo, $storeTitle)
     {
+
         /** @var StoreOrderCartInfoServices $orderInfoServices */
         $orderInfoServices = app()->make(StoreOrderCartInfoServices::class);
         if (!$data['delivery_name']) {
@@ -677,6 +694,45 @@ class StoreOrderDeliveryServices extends BaseServices
                 }
             });
         }
+        return $dump;
+
+
+
+    }
+
+
+    //直接调用快递100 打印快递面单
+    public function orderDeliverGoods2(int $id, array $data, $orderInfo, $storeTitle,$remark)
+    {
+//{"kuaidinum":"73554865406221","bulkpen":"110- H6 142","orgCode":"76801","orgName":"\u6f6e\u5dde","pkgName":"\u6df1\u5733\u8f6c","kdComOrderNum":"01747806535874kGMCiL","waterMark":"H6","sameProv":"1","taskId":"66AAF628C6F544F4BF9DB0452FF0B85E"}
+//{"delivery_name":"\u4e2d\u901a\u5feb\u9012","delivery_id":"","delivery_code":"zhongtong","express_record_type":"2","express_temp_id":"a524076065894dc1b817c953c583fcc5","to_name":"\u4e1c\u65b9\u6728\u5320","to_tel":"15976344931","to_addr":"\u5e7f\u4e1c\u7701\u6f6e\u5dde\u5e02\u6f6e\u5b89\u533a\u5916\u73af\u5317\u8def\u6f6e\u5dde\u4e5d\u5408\u6587\u5316\u6709\u9650\u516c\u53f8","sh_delivery_name":"","sh_delivery_id":"","sh_delivery_uid":"","fictitious_content":"","day_type":0,"pickup_time":["",""],"pickup_start_time":"","pickup_end_time":""}
+//{"id":21,"pid":0,"order_id":"cp448139290157379668","trade_no":"","uid":1,"real_name":"\u5f20\u4e09","user_phone":"020-81167888","user_address":"\u5e7f\u4e1c\u7701 \u5e7f\u5dde\u5e02 \u6d77\u73e0\u533a \u65b0\u6e2f\u4e2d\u8def397\u53f7","cart_id":["1448139282654228103"],"freight_price":"0.00","total_num":1,"total_price":"138.00","total_postage":"0.00","pay_price":"138.00","pay_postage":"0.00","deduction_price":"0.00","coupon_id":0,"coupon_price":"0.00","paid":1,"pay_time":1747811134,"pay_type":"yue","add_time":1747811132,"status":0,"is_stock_up":0,"refund_status":0,"refund_type":0,"refund_express":"","refund_express_name":"","refund_reason_wap_img":"","refund_reason_wap_explain":"","refund_reason_time":0,"refund_reason_wap":"","refund_reason":"","refund_price":"0.00","delivery_name":"","delivery_code":"","delivery_type":"","delivery_id":"","kuaidi_label":"","kuaidi_task_id":"","kuaidi_order_id":"","fictitious_content":"","delivery_uid":0,"gain_integral":"0.00","use_integral":"0.00","back_integral":"0.00","spread_uid":1,"spread_two_uid":0,"one_brokerage":"27.60","two_brokerage":"0.00","mark":"","is_del":0,"unique":"656512306896699392","remark":"","mer_id":0,"is_mer_check":0,"combination_id":0,"pink_id":0,"cost":"0.00","seckill_id":0,"bargain_id":0,"advance_id":0,"verify_code":"","store_id":0,"shipping_type":1,"clerk_id":0,"is_channel":1,"is_remind":0,"is_system_del":0,"channel_type":"routine","province":"\u5e7f\u4e1c\u7701","express_dump":"","virtual_type":0,"virtual_info":"","pay_uid":1,"custom_form":[],"staff_id":0,"agent_id":0,"division_id":0,"staff_brokerage":"0.00","agent_brokerage":"0.00","division_brokerage":"0.00","team_brokerage":"0.00","spread_team_uid":0,"pinkStatus":null}
+
+//throw new AdminException(json_encode($storeTitle));
+
+        $dump = Kuaidi100PrintOrder::print_order($orderInfo,$storeTitle,$remark);
+        //
+        $data['delivery_id']=$dump['kuaidinum'];
+        $data['delivery_type'] = 'express';
+        $data['status'] = 1;
+        /** @var StoreOrderStatusServices $services */
+        $services = app()->make(StoreOrderStatusServices::class);
+        $this->transaction(function () use ($id, $data, $services) {
+            $res = $this->dao->update($id, $data);
+            $res = $res && $services->save([
+                    'oid' => $id,
+                    'change_time' => time(),
+                    'change_type' => 'delivery_goods',
+                    'change_message' => '已发货 快递公司：' . $data['delivery_name'] . ' 快递单号：' . $data['delivery_id']
+                ]);
+            if (!$res) {
+                throw new AdminException(400529);
+            }
+        });
+        $dump['delivery_id'] = $data['delivery_id'];
+        $dump['delivery_type'] = $data['delivery_type'];
+        $dump['delivery_name'] = $data['delivery_name'];
+        $dump['status'] = $data['status'];
         return $dump;
     }
 

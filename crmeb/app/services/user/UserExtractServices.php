@@ -27,6 +27,7 @@ use crmeb\services\wechat\Payment;
 use crmeb\services\workerman\ChannelService;
 use EasyWeChat\Payment\Order;
 use think\exception\ValidateException;
+use think\facade\Log;
 use think\facade\Route as Url;
 
 /**
@@ -205,45 +206,67 @@ class UserExtractServices extends BaseServices
 
         //自动提现到零钱
         if ($userExtract['extract_type'] == 'weixin' && sys_config('brokerage_type', 0)) {
+            Log::write('开始微信提现处理，用户ID：' . $userExtract['uid'] . '，提现金额：' . $extractNumber, 'crmeb');
 
             $openid = $wechatServices->uidToOpenid($userExtract['uid'], 'wechat');
             $type = Order::JSAPI;
+            Log::write('尝试从微信公众号获取openid：' . ($openid ? $openid : '失败'), 'crmeb');
             if (!$openid) {
                 $openid = $wechatServices->uidToOpenid($userExtract['uid'], 'routine');
                 $type = 'mini';
+                Log::write('尝试从小程序获取openid：' . ($openid ? $openid : '失败'), 'crmeb');
             }
             if (!$openid) {
                 $openid = $wechatServices->uidToOpenid((int)$userExtract['uid'], 'app');
                 $type = Order::APP;
+                Log::write('尝试从APP获取openid：' . ($openid ? $openid : '失败'), 'crmeb');
             }
 
             if (!$openid) {
+                Log::write('所有渠道获取openid失败，用户ID：' . $userExtract['uid'], 'fail');
                 throw new ValidateException('该用户暂不支持企业付款到零钱，请手动转账');
             }
 
             /** @var StoreOrderCreateServices $services */
             $services = app()->make(StoreOrderCreateServices::class);
             $insertData['order_id'] = $services->getNewOrderId();
+            Log::write('生成提现订单号：' . $insertData['order_id'], 'crmeb');
 
             //v3商家转账到零钱
             if (sys_config('pay_wechat_type')) {
+                Log::write('使用微信支付V3版本处理提现', 'crmeb');
                 $pay = new Pay('v3_wechat_pay');
-                $res = $pay->merchantPay($openid, $insertData['order_id'], $extractNumber, [
-                    'type' => $type,
-                    'batch_name' => '提现佣金到零钱',
-                    'batch_remark' => '您于' . date('Y-m-d H:i:s') . '提现.' . $extractNumber . '元'
-                ]);
+                try {
+                    $res = $pay->merchantPay($openid, $insertData['order_id'], $extractNumber, [
+                        'type' => $type,
+                        'batch_name' => '提现佣金到零钱',
+                        'batch_remark' => '您于' . date('Y-m-d H:i:s') . '提现.' . $extractNumber . '元'
+                    ]);
+                    Log::write('微信支付V3调用成功，结果：' . json_encode($res), 'success');
+                } catch (\Exception $e) {
+                    Log::write('微信支付V3调用失败：' . $e->getMessage(), 'fail');
+                    throw new ApiException('微信支付V3调用失败：' . $e->getMessage());
+                }
             } else {
+                Log::write('使用微信支付V2版本处理提现', 'crmeb');
                 // 微信提现
-                $res = WechatService::merchantPay($openid, $insertData['order_id'], $extractNumber, '提现佣金到零钱');
+                try {
+                    $res = WechatService::merchantPay($openid, $insertData['order_id'], $extractNumber, '提现佣金到零钱');
+                    Log::write('微信支付V2调用成功，结果：' . json_encode($res), 'success');
+                } catch (\Exception $e) {
+                    Log::write('微信支付V2调用失败：' . $e->getMessage(), 'fail');
+                    throw new ApiException('微信支付V2调用失败：' . $e->getMessage());
+                }
             }
 
             if (!$res) {
+                Log::write('微信支付调用返回结果为空', 'fail');
                 throw new ApiException(400658);
             }
 
             // 更新 提现申请记录 wechat_order_id
-            $this->dao->update($id, ['wechat_order_id' => $insertData['order_id']]);
+            $updateRes = $this->dao->update($id, ['wechat_order_id' => $insertData['order_id']]);
+            Log::write('更新提现记录微信订单号结果：' . ($updateRes ? '成功' : '失败'), 'crmeb');
 
             /** @var UserServices $userService */
             $userService = app()->make(UserServices::class);
@@ -251,6 +274,7 @@ class UserExtractServices extends BaseServices
 
             $insertData['nickname'] = $user['nickname'];
             $insertData['phone'] = $user['phone'];
+            Log::write('微信提现处理完成，用户ID：' . $userExtract['uid'], 'success');
         }
 
         /** @var CapitalFlowServices $capitalFlowServices */
@@ -456,6 +480,10 @@ class UserExtractServices extends BaseServices
         $user = $userService->getUserInfo($uid);
         if (!$user) {
             throw new ApiException(100026);
+        }
+
+        if($user['pay_count']==0){
+            throw new ApiException('请购买产品后再进行提现');
         }
 
         if ($data['extract_type'] == 'weixin' && !sys_config('brokerage_type', 0) && !$data['weixin']) {

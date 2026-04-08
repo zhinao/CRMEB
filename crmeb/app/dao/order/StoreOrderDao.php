@@ -143,7 +143,7 @@ class StoreOrderDao extends BaseDao
                     break;
                 case 6:
                     $query->where(function ($query) {
-                        $query->where('one_brokerage', '>', 0)->whereOr('two_brokerage', '>', 0);
+                        $query->where('one_brokerage', '>', 0)->whereOr('two_brokerage', '>', 0)->whereOr('team_brokerage', '>', 0);
                     });
                     break;
             }

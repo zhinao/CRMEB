@@ -7,8 +7,8 @@
 					<view class="txt" :style="{ color: newData.activeTxtColor.color[0].item }">{{ $t(item.name) }}</view>
 				</block>
 				<block v-else>
-					<image :src="item.imgList[1]"></image>
-					<view class="txt" :style="{ color: newData.txtColor.color[0].item }">{{ $t(item.name) }}</view>
+					<image :src="item.imgList[1]" :class="{'blink-icon': item.name === '我的' || item.name === 'mine' || item.name === '个人中心'}"></image>
+					<view class="txt" :class="{'blink-text': item.name === '我的' || item.name === 'mine' || item.name === '个人中心'}" :style="{ color: newData.txtColor.color[0].item }">{{ $t(item.name) }}</view>
 				</block>
 				<div class="count-num" v-if="item.link === '/pages/order_addcart/order_addcart' && cartNum > 0">
 					{{ cartNum > 99 ? '99+' : cartNum }}
@@ -187,6 +187,10 @@ export default {
 		.active {
 			animation: mymove 1s 1;
 		}
+		
+		.blink-icon, .blink-text {
+			animation: blinking 1.5s infinite;
+		}
 
 		@keyframes mymove {
 			0% {
@@ -214,6 +218,18 @@ export default {
 
 			90% {
 				transform: scale(1);
+			}
+		}
+		
+		@keyframes blinking {
+			0% {
+				opacity: 1;
+			}
+			50% {
+				opacity: 0.3;
+			}
+			100% {
+				opacity: 1;
 			}
 		}
 	}

@@ -626,10 +626,13 @@ class ExportServices extends BaseServices
                     $item['extract_count_num'],
                     $item['brokerage_price'],
                     $item['spread_name'],
+                    $item['spread_uid'],
+                    $item['team_name'],
+                    $item['team_uid'],
                 ];
             }
         }
-        $header = ['用户编号', '昵称', '电话号码', '推广用户数量', '推广订单数量', '推广订单金额', '佣金金额', '已提现金额', '提现次数', '未提现金额', '上级推广人'];
+        $header = ['用户编号', '昵称', '电话号码', '推广用户数量', '推广订单数量', '推广订单金额', '佣金金额', '已提现金额', '提现次数', '未提现金额', '上级推广人昵称', '上级推广人ID', '团长昵称', '团长ID'];
         $title = ['推广用户', '推广用户导出' . time(), ' 生成时间：' . date('Y-m-d H:i:s', time())];
         $filename = '推广用户_' . date('YmdHis', time());
         $suffix = 'xlsx';

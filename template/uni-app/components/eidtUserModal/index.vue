@@ -1,4 +1,5 @@
 <template>
+	<uni-popup :isShow="isShow" @close="closeAttr">
 	<view :style="colorStyle">
 		<view class="product-window" :class="{'on':isShow}">
 			<view class="iconfont icon-guanbi" @click="closeAttr"></view>
@@ -27,7 +28,7 @@
 								<image :src="userInfo.avatar || defHead"></image>
 							</button>
 						</view>
-						<!-- <view class="iconfont icon-xiangyou"></view> -->
+						<view class="iconfont icon-xiangzuo animate-arrow-large"></view>
 					</view>
 					<view class="nickname edit-box">
 						<view class="left">
@@ -37,7 +38,7 @@
 									:value='userInfo.nickname'></input>
 							</view>
 						</view>
-						<!-- <view class="iconfont icon-xiangyou"></view> -->
+						<view class="iconfont icon-xiangzuo animate-arrow-large"></view>
 					</view>
 
 				</view>
@@ -281,6 +282,17 @@
 			.icon-xiangyou {
 				color: #cfcfcf;
 			}
+			
+			.animate-arrow {
+				animation: arrowPulse 1.5s ease-in-out infinite;
+			}
+			
+			.animate-arrow-large {
+				color: #fc4141;
+				font-size: 48rpx;
+				font-weight: bold;
+				animation: arrowBlinkMove 1s ease-in-out infinite;
+			}
 		}
 
 		.bottom {
@@ -308,6 +320,34 @@
 				background-color: #07C160;
 				color: #fff;
 			}
+		}
+	}
+	
+	@keyframes arrowPulse {
+		0%, 100% {
+			transform: translateX(0);
+		}
+		50% {
+			transform: translateX(-10rpx);
+		}
+	}
+	
+	@keyframes arrowBlinkMove {
+		0%, 100% {
+			transform: translateX(0) scale(1);
+			opacity: 1;
+		}
+		25% {
+			transform: translateX(-15rpx) scale(1.2);
+			opacity: 0.8;
+		}
+		50% {
+			transform: translateX(-30rpx) scale(1.4);
+			opacity: 1;
+		}
+		75% {
+			transform: translateX(-15rpx) scale(1.2);
+			opacity: 0.8;
 		}
 	}
 </style>

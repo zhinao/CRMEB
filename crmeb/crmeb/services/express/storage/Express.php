@@ -192,6 +192,7 @@ class Express extends BaseExpress
      */
     public function temp(string $com)
     {
+
         $param = [
             'com' => $com
         ];
@@ -201,6 +202,7 @@ class Express extends BaseExpress
             $header = ['version:v1.1'];
         }
         return $this->accessToken->httpRequest(self::EXPRESS_TEMP, $param, 'GET', true, $header);
+
     }
 
     /**

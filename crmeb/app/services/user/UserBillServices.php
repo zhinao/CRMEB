@@ -20,7 +20,7 @@ use crmeb\exceptions\ApiException;
 use think\Exception;
 use crmeb\services\CacheService;
 use think\facade\Log;
-
+use app\services\order\StoreOrderCartInfoServices;
 /**
  *
  * Class UserBillServices
@@ -81,6 +81,15 @@ class UserBillServices extends BaseServices
             'status' => 1,
             'pm' => 1
         ],
+        'get_team_brokerage' => [
+            'title' => '获得推广佣金',
+            'category' => 'now_money',
+            'type' => 'brokerage',
+            'mark' => '团队成员{%nickname%}成功消费{%pay_price%}元,奖励团队长佣金{%number%}',
+            'status' => 1,
+            'pm' => 1
+        ],
+
         'get_user_brokerage' => [
             'title' => '获得推广用户佣金',
             'category' => 'now_money',
@@ -1193,27 +1202,31 @@ class UserBillServices extends BaseServices
         [$page, $limit] = $this->getPageValue();
         $time = [];
         $where = ['paid' => 1, 'type' => 6, 'spread_or_uid' => $uid, 'pid' => 0, 'refund_status' => 0];
-        $list = $storeOrderServices->getlist($where, ['id,order_id,uid,add_time,spread_uid,status,spread_two_uid,one_brokerage,two_brokerage,pay_price,pid'], $page, $limit, ['split']);
+        $list = $storeOrderServices->getlist($where, ['id,order_id,uid,add_time,spread_uid,status,spread_two_uid,spread_team_uid,one_brokerage,two_brokerage,team_brokerage,pay_price,pid'], $page, $limit, ['split']);
         $result['count'] = $storeOrderServices->count($where);
         $time_data = [];
         if ($list) {
             $uids = array_unique(array_column($list, 'uid'));
             $userInfos = $userService->getColumn([['uid', 'in', $uids]], 'uid,avatar,nickname', 'uid');
+            $StoreOrderCartInfoServices = app()->make(StoreOrderCartInfoServices::class);
             foreach ($list as &$item) {
                 $item['avatar'] = $userInfos[$item['uid']]['avatar'] ?? '';
                 $item['nickname'] = $userInfos[$item['uid']]['nickname'] ?? '';
-                $item['number'] = $item['spread_uid'] == $uid ? $item['one_brokerage'] : $item['two_brokerage'];
+                $item['number'] = ($item['spread_uid'] == $uid ? $item['one_brokerage'] : $item['two_brokerage'])+  ($item['spread_team_uid'] == $uid ?  $item['team_brokerage'] : 0);
                 $item['time'] = $item['add_time'] ? date('Y-m-d H:i', $item['add_time']) : '';
                 $item['time_key'] = $item['add_time'] ? date('Y-m', $item['add_time']) : '';
                 $item['type'] = in_array($item['status'], [2, 3]) ? 'brokerage' : 'number';
                 foreach ($item['split'] as $key => $items) {
                     $item['children'][] = [
                         'order_id' => $items['order_id'],
-                        'number' => $item['spread_uid'] == $uid ? $items['one_brokerage'] : $items['two_brokerage'],
+                        'number' => ($item['spread_uid'] == $uid ? $item['one_brokerage'] : $item['two_brokerage'])+  ($item['spread_team_uid'] == $uid ?  $item['team_brokerage'] : 0),
                         'type' => in_array($item['status'], [2, 3]) ? 'brokerage' : 'number',
                     ];
                     unset($item['split'][$key]);
                 }
+                //获取订单商品明细
+                $item['_info'] = $StoreOrderCartInfoServices->getOrderCartInfo((int)$item['id']);
+
             }
             $times = array_unique(array_column($list, 'time_key'));
             $time_data = [];
@@ -1268,7 +1281,7 @@ class UserBillServices extends BaseServices
             $where = $where + ['agent_id' => $uid, 'agent_brokerage_greater' => 0];
         }
 
-        $list = $storeOrderServices->getlist($where, ['id,order_id,uid,add_time,spread_uid,division_id,agent_id,status,spread_two_uid,one_brokerage,two_brokerage,agent_brokerage,division_brokerage,pay_price,pid'], $page, $limit, ['split']);
+        $list = $storeOrderServices->getlist($where, ['id,order_id,uid,add_time,spread_uid,division_id,agent_id,status,spread_two_uid,one_brokerage,two_brokerage,team_brokerage,agent_brokerage,division_brokerage,pay_price,pid'], $page, $limit, ['split']);
         $result['count'] = $storeOrderServices->count($where);
         $time_data = [];
         if ($list) {

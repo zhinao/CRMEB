@@ -64,7 +64,7 @@
         </el-table-column>
         <el-table-column label="获得时间" min-width="130">
           <template slot-scope="scope">
-            <span>{{ scope.row._add_time }}</span>
+            <span>{{ scope.row.add_time }}</span>
           </template>
         </el-table-column>
         <el-table-column label="备注" min-width="130">
@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { commissionDetailApi, extractlistApi } from '@/api/finance';
+import { commissionDetailApi, extractlistApi ,brokerageListApi} from '@/api/finance';
 import { mapState } from 'vuex';
 export default {
   name: 'commissionDetails',
@@ -152,10 +152,10 @@ export default {
     // 列表
     getList() {
       this.loading = true;
-      extractlistApi(this.Ids, this.formValidate)
+      brokerageListApi(this.Ids, this.formValidate)//extractlistApi
         .then(async (res) => {
           let data = res.data;
-          this.tabList = data.data;
+          this.tabList = data.list;
           this.total = data.count;
           this.loading = false;
         })

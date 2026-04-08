@@ -36,22 +36,32 @@ export default {
 				return;
 			}
 			getOpenAdv()
-				.then((res) => {
-					if (res.data.status == 0 || res.data.value.length == 0) {
-						uni.switchTab({
-							url: this.indexUrl
-						});
-					} else if (res.data.status && (res.data.value.length || res.data.video_link)) {
-						this.advData = res.data;
-						uni.setStorageSync('guideDate', new Date().toLocaleDateString());
-						this.guidePages = true;
-					}
-				})
-				.catch((err) => {
+			.then((res) => {
+				// 确保 res.data 存在
+				if (!res || !res.data) {
 					uni.switchTab({
 						url: this.indexUrl
 					});
+					return;
+				}
+				// 检查是否有有效的广告数据
+				const hasValidData = res.data.status && (res.data.value && res.data.value.length > 0 || res.data.video_link);
+				if (hasValidData) {
+					this.advData = res.data;
+					uni.setStorageSync('guideDate', new Date().toLocaleDateString());
+					this.guidePages = true;
+				} else {
+					// 如果没有有效数据，跳转到首页
+					uni.switchTab({
+						url: this.indexUrl
+					});
+				}
+			})
+			.catch((err) => {
+				uni.switchTab({
+					url: this.indexUrl
 				});
+			});
 		}
 	},
 	onHide() {

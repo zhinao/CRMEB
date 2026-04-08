@@ -55,7 +55,7 @@
         </el-table-column>
         <el-table-column label="总佣金金额" min-width="100">
           <template slot-scope="scope">
-            <span>{{ scope.row.sum_number }}</span>
+             <span style="cursor:pointer" @click="Info(scope.row)">{{ scope.row.sum_number }}</span>
           </template>
         </el-table-column>
         <el-table-column label="账户余额" min-width="100">

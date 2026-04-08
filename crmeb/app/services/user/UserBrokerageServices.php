@@ -70,6 +70,13 @@ class UserBrokerageServices extends BaseServices
             'status' => 1,
             'pm' => 1
         ],
+        'get_team_brokerage' => [
+            'title' => '获得团队佣金',
+            'type' => 'team_brokerage',
+            'mark' => '团队成员{%nickname%}成功消费{%pay_price%}元,奖励团队长佣金{%number%}',
+            'status' => 1,
+            'pm' => 1
+        ],
         'get_user_brokerage' => [
             'title' => '获得推广用户佣金',
             'type' => 'brokerage_user',
@@ -189,7 +196,7 @@ class UserBrokerageServices extends BaseServices
      * @return float
      * @throws \ReflectionException
      */
-    public function getUserBrokerageSum(int $uid, array $type = ['one_brokerage', 'two_brokerage', 'brokerage_user'], $time = '')
+    public function getUserBrokerageSum(int $uid, array $type = ['one_brokerage', 'two_brokerage', 'team_brokerage', 'brokerage_user'], $time = '')
     {
         $where = ['uid' => $uid];
         if ($type) $where['type'] = $type;
@@ -210,7 +217,7 @@ class UserBrokerageServices extends BaseServices
         $id = (int)$order['id'];
         $where = [
             'uid' => [$order['spread_uid'], $order['spread_two_uid'], $order['staff_id'], $order['agent_id'], $order['division_id']],
-            'type' => ['self_brokerage', 'one_brokerage', 'two_brokerage', 'staff_brokerage', 'agent_brokerage', 'division_brokerage', 'pink_master_brokerage'],
+            'type' => ['self_brokerage', 'one_brokerage', 'two_brokerage', 'team_brokerage', 'staff_brokerage', 'agent_brokerage', 'division_brokerage', 'pink_master_brokerage'],
             'link_id' => $id,
             'pm' => 1
         ];
@@ -224,6 +231,7 @@ class UserBrokerageServices extends BaseServices
                 $brokerageList = [
                     ['uid' => $order['spread_uid'], 'number' => $order['one_brokerage']],
                     ['uid' => $order['spread_two_uid'], 'number' => $order['two_brokerage']],
+                    ['uid' => $order['spread_team_uid'], 'number' => $order['team_brokerage']],
                 ];
             }
         }

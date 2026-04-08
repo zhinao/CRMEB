@@ -30,8 +30,10 @@ function baseRequest(url, method, data, {
 }) {
 	let Url = HTTP_REQUEST_URL,
 		header = HEADER;
-
+	//debugger;
+	console.log('noAuth=',noAuth);
 	if (!noAuth) {
+		
 		//登录过期自动登录
 		if (!store.state.app.token && !checkLogin()) {
 			toLogin();

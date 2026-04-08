@@ -92,6 +92,8 @@ php think timer [ status ] [ --d ]
   - restart: 重启
 - --d : 后台执行
 
+/www/server/php/73/bin/php think timer start --d
+
 ## 长连接服务
 在h5聊天,后台管理员消息通知等功能使用到
 ```sh

@@ -933,6 +933,15 @@
                         class="priceBox"
                       ></el-input-number>
                     </template>
+                    <template v-else-if="item.slot === 'brokerage_team'">
+                      <el-input-number
+                        :controls="false"
+                        v-model="oneFormValidate[0].brokerage_team"
+                        :min="0"
+                        :max="9999999999"
+                        class="priceBox"
+                      ></el-input-number>
+                    </template>
                     <template v-else-if="item.slot === 'vip_price'">
                       <el-input-number
                         :controls="false"
@@ -956,8 +965,10 @@
                   placeholder="请输入一级返佣"
                   class="columnsBox content_width"
                   v-model="manyBrokerage"
+                  style="width: 120px"
                 >
                 </el-input>
+                
                 <span class="brokerage">二级返佣：</span
                 ><el-input
                   type="number"
@@ -965,7 +976,19 @@
                   placeholder="请输入二级返佣"
                   class="columnsBox content_width"
                   v-model="manyBrokerageTwo"
+                  style="width: 120px"
                 ></el-input>
+
+                <span class="brokerage">团队返佣：</span
+                ><el-input
+                  type="number"
+                  :controls="false"
+                  placeholder="请输入团队返佣"
+                  class="columnsBox content_width"
+                  v-model="manyBrokerageTeam"
+                  style="width: 120px"
+                ></el-input>
+
               </span>
               <span v-if="formValidate.is_sub.indexOf(0) > -1">
                 会员价：<el-input-number
@@ -975,6 +998,7 @@
                   :max="9999999999"
                   class="columnsBox content_width"
                   v-model="manyVipPrice"
+                  style="width: 120px"
                 ></el-input-number>
               </span>
               <el-button type="primary" v-db-click @click="brokerageSetUp">批量设置</el-button>
@@ -1069,6 +1093,15 @@
                       <el-input-number
                         :controls="false"
                         v-model="manyFormValidate[scope.$index].brokerage_two"
+                        :min="0"
+                        :max="9999999999"
+                        class="priceBox"
+                      ></el-input-number>
+                    </template>
+                    <template v-else-if="item.slot === 'brokerage_team'">
+                      <el-input-number
+                        :controls="false"
+                        v-model="manyFormValidate[scope.$index].brokerage_team"
                         :min="0"
                         :max="9999999999"
                         class="priceBox"
@@ -1825,6 +1858,7 @@ export default {
           volume: 0,
           brokerage: 0,
           brokerage_two: 0,
+          brokerage_team: 0,
           vip_price: 0,
           virtual_list: [],
           coupon_id: 0,
@@ -1908,6 +1942,7 @@ export default {
       },
       manyBrokerage: 0,
       manyBrokerageTwo: 0,
+      manyBrokerageTeam: 0,
       manyVipPrice: 0,
       upload: {
         videoIng: false, // 是否显示进度条；
@@ -1934,6 +1969,12 @@ export default {
         {
           title: '二级返佣',
           slot: 'brokerage_two',
+          align: 'center',
+          width: 95,
+        },
+        {
+          title: '团队返佣',
+          slot: 'brokerage_team',
           align: 'center',
           width: 95,
         },
@@ -2031,6 +2072,7 @@ export default {
                   volume: 0,
                   brokerage: 0,
                   brokerage_two: 0,
+                  brokerage_team: 0,
                   vip_price: 0,
                   virtual_list: [],
                   coupon_id: 0,
@@ -2265,6 +2307,7 @@ export default {
             volume: 0,
             brokerage: 0,
             brokerage_two: 0,
+            brokerage_team: 0,
             vip_price: 0,
             virtual_list: [],
             coupon_id: 0,
@@ -2291,6 +2334,7 @@ export default {
       this.checkAllGroup(data);
     },
     checkAllGroup(data) {
+
       if (this.formValidate.spec_type === 0) {
         if (data.indexOf(0) > -1) {
           this.columnsInstall = this.columns2.slice(0, 4).concat(this.member);
@@ -2302,6 +2346,7 @@ export default {
         if (data.length === 2) {
           this.columnsInstall = this.columns2.slice(0, 4).concat(this.rakeBack).concat(this.member);
         }
+        
       } else {
         if (data.indexOf(0) > -1) {
           this.columnsInstal2 = this.columnsInstalM.slice(0, 4).concat(this.member);
@@ -2313,6 +2358,7 @@ export default {
         if (data.length === 2) {
           this.columnsInstal2 = this.columnsInstalM.slice(0, 4).concat(this.rakeBack).concat(this.member);
         }
+        console.log(data,this.columnsInstal2);
       }
     },
     // 添加优惠券
@@ -2521,6 +2567,7 @@ export default {
       for (let val of that.manyFormValidate) {
         this.$set(val, 'brokerage', that.manyBrokerage);
         this.$set(val, 'brokerage_two', that.manyBrokerageTwo);
+        this.$set(val, 'brokerage_team', that.manyBrokerageTeam);
         this.$set(val, 'vip_price', that.manyVipPrice);
       }
     },

@@ -293,6 +293,7 @@ class StoreProductServices extends BaseServices
                 'volume' => 0,
                 'brokerage' => 0,
                 'brokerage_two' => 0,
+                'brokerage_team' => 0,
             ];
             $skuList = $this->validateProductAttr($attr, $detail, $id);
             $storeProductAttrServices->saveProductAttr($skuList, $id, 0);
@@ -309,7 +310,7 @@ class StoreProductServices extends BaseServices
             }
             $productInfo['items'] = $result['attr'];
             $productInfo['attrs'] = $result['value'];
-            $productInfo['attr'] = ['pic' => '', 'vip_price' => 0, 'price' => 0, 'cost' => 0, 'ot_price' => 0, 'stock' => 0, 'bar_code' => '', 'weight' => 0, 'volume' => 0, 'brokerage' => 0, 'brokerage_two' => 0];
+            $productInfo['attr'] = ['pic' => '', 'vip_price' => 0, 'price' => 0, 'cost' => 0, 'ot_price' => 0, 'stock' => 0, 'bar_code' => '', 'weight' => 0, 'volume' => 0, 'brokerage' => 0, 'brokerage_two' => 0, 'brokerage_team' => 0];
         } else {
             /** @var StoreProductVirtualServices $virtualService */
             $virtualService = app()->make(StoreProductVirtualServices::class);
@@ -329,6 +330,7 @@ class StoreProductServices extends BaseServices
                 'volume' => $result['volume'] ? floatval($result['volume']) : 0,
                 'brokerage' => $result['brokerage'] ? floatval($result['brokerage']) : 0,
                 'brokerage_two' => $result['brokerage_two'] ? floatval($result['brokerage_two']) : 0,
+                'brokerage_team' => $result['brokerage_team'] ? floatval($result['brokerage_team']) : 0,
                 'coupon_id' => $result['coupon_id'],
                 'coupon_name' => $storeCouponIssueServices->value(['id' => $result['coupon_id']], 'title'),
                 'disk_info' => $result['disk_info']
@@ -394,7 +396,7 @@ class StoreProductServices extends BaseServices
 
             $types = 1;
             if ($id) {
-                $sukValue = $storeProductAttrValueServices->getColumn(['product_id' => $id, 'type' => 0, 'suk' => $suk], 'bar_code,cost,price,ot_price,stock,image as pic,weight,volume,brokerage,brokerage_two,vip_price,is_virtual,coupon_id,unique,disk_info', 'suk');
+                $sukValue = $storeProductAttrValueServices->getColumn(['product_id' => $id, 'type' => 0, 'suk' => $suk], 'bar_code,cost,price,ot_price,stock,image as pic,weight,volume,brokerage,brokerage_two,brokerage_team,vip_price,is_virtual,coupon_id,unique,disk_info', 'suk');
                 if (!$sukValue) {
                     if ($type == 0) $types = 0; //编辑商品时，将没有规格的数据不生成默认值
                     $sukValue[$suk]['pic'] = '';
@@ -414,6 +416,7 @@ class StoreProductServices extends BaseServices
                     $sukValue[$suk]['volume'] = 0;
                     $sukValue[$suk]['brokerage'] = 0;
                     $sukValue[$suk]['brokerage_two'] = 0;
+                    $sukValue[$suk]['brokerage_team'] = 0;
                 }
             } else {
                 $sukValue[$suk]['pic'] = '';
@@ -433,6 +436,7 @@ class StoreProductServices extends BaseServices
                 $sukValue[$suk]['volume'] = 0;
                 $sukValue[$suk]['brokerage'] = 0;
                 $sukValue[$suk]['brokerage_two'] = 0;
+                $sukValue[$suk]['brokerage_team'] = 0;
             }
             if ($types) { //编辑商品时，将没有规格的数据不生成默认值
                 foreach ($head as $k => $title) {
@@ -467,6 +471,7 @@ class StoreProductServices extends BaseServices
                 $valueNew[$count]['volume'] = floatval($sukValue[$suk]['volume']) ?? 0;
                 $valueNew[$count]['brokerage'] = floatval($sukValue[$suk]['brokerage']) ?? 0;
                 $valueNew[$count]['brokerage_two'] = floatval($sukValue[$suk]['brokerage_two']) ?? 0;
+                $valueNew[$count]['brokerage_team'] = floatval($sukValue[$suk]['brokerage_team']) ?? 0;
                 $count++;
             }
         }
@@ -547,8 +552,9 @@ class StoreProductServices extends BaseServices
             if ($data['is_sub'] == 0) {
                 $item['brokerage'] = 0;
                 $item['brokerage_two'] = 0;
+                $item['brokerage_team'] = 0;
             }
-            if (($item['brokerage'] + $item['brokerage_two']) > $item['price']) {
+            if (($item['brokerage'] + $item['brokerage_two']+ $item['brokerage_team']) > $item['price']) {
                 throw new AdminException(400572);
             }
         }
@@ -803,6 +809,7 @@ class StoreProductServices extends BaseServices
                 'volume' => $value['volume'] ?? 0,
                 'brokerage' => $value['brokerage'] ?? 0,
                 'brokerage_two' => $value['brokerage_two'] ?? 0,
+                'brokerage_team' => $value['brokerage_team'] ?? 0,
                 'type' => $type,
                 'quota' => $value['quota'] ?? 0,
                 'quota_show' => $value['quota'] ?? 0,
@@ -975,6 +982,7 @@ class StoreProductServices extends BaseServices
             $valueNew[$count]['volume'] = $sukValue[$suk]['volume'] ? floatval($sukValue[$suk]['volume']) : 0;
             $valueNew[$count]['brokerage'] = $sukValue[$suk]['brokerage'] ? floatval($sukValue[$suk]['brokerage']) : 0;
             $valueNew[$count]['brokerage_two'] = $sukValue[$suk]['brokerage_two'] ? floatval($sukValue[$suk]['brokerage_two']) : 0;
+            $valueNew[$count]['brokerage_team'] = $sukValue[$suk]['brokerage_team'] ? floatval($sukValue[$suk]['brokerage_team']) : 0;
             $count++;
         }
         $header[] = ['title' => '图片', 'slot' => 'pic', 'align' => 'center', 'minWidth' => 120];
@@ -1341,6 +1349,7 @@ class StoreProductServices extends BaseServices
                 'volume' => 0,
                 'brokerage' => 0,
                 'brokerage_two' => 0,
+                'brokerage_team' => 0,
             ];
             $skuList = $this->validateProductAttr($attr, $detail, $id);
             $storeProductAttrServices->saveProductAttr($skuList, $id, 0);

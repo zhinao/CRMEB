@@ -32,7 +32,7 @@ use crmeb\services\CacheService;
 
 /**
  *
- * Class StoreCombinationServices
+ * Class StoreCombinationServices 拼团
  * @package app\services\activity
  * @method getPinkIdsArray(array $ids, array $field)
  * @method getOne(array $where, ?string $field = '*', array $with = []) 根据条件获取一条数据

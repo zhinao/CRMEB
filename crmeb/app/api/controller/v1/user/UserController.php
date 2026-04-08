@@ -84,18 +84,31 @@ class UserController
      */
     public function edit(Request $request)
     {
-        list($avatar, $nickname) = $request->postMore([
+        list($avatar, $nickname, $rename, $uid) = $request->postMore([
             ['avatar', ''],
             ['nickname', ''],
+            ['rename', ''],
+            ['uid', 0]
         ], true);
-        if (!$avatar && $nickname == '') {
-            return app('json')->fail(410134);
+
+        if($rename)
+        {
+            if ($this->services->eidtNickname($uid, ['rename' => $rename])) {
+                return app('json')->success('备注名修改成功');
+            }
+            return app('json')->fail('备注名修改失败');
         }
-        $uid = (int)$request->uid();
-        if ($this->services->eidtNickname($uid, ['avatar' => $avatar, 'nickname' => $nickname])) {
-            return app('json')->success(100014);
+        else
+        {
+            if (!$avatar && $nickname == '') {
+                return app('json')->fail(410134);
+            }
+            $uid = (int)$request->uid();
+            if ($this->services->eidtNickname($uid, ['avatar' => $avatar, 'nickname' => $nickname])) {
+                return app('json')->success(100014);
+            }
+            return app('json')->fail(100015);
         }
-        return app('json')->fail(100015);
     }
 
     /**

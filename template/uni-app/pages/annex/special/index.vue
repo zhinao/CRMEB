@@ -43,7 +43,21 @@
 					</promotionList>
 					<richText v-if="item.name == 'richText'" :dataConfig="item" :isSortType="isSortType"></richText>
 					<seckill v-if="item.name == 'seckill'" :dataConfig="item" :isSortType="isSortType"></seckill>
-					<swiperBg v-if="item.name == 'swiperBg'" :dataConfig="item" :isSortType="isSortType"></swiperBg>
+					<!-- 视频播放器 -->
+					<view class="video-player" v-if="item.name == 'swiperBg'">
+						<video 
+							:src="'http://cdn.danao.net.cn/logo.mp4'" 
+							:poster="'https://cdn.danao.net.cn/logo.jpg'"
+							autoplay 
+							loop 
+							muted
+							controls
+							class="video-content"
+							@loadstart="videoLoading = true"
+							@loadeddata="videoLoading = false">
+						</video>
+						<view v-if="videoLoading" class="video-loading">视频加载中...</view>
+					</view>
 					<swipers v-if="item.name == 'swipers'" :dataConfig="item" :isSortType="isSortType"></swipers>
 					<tabNav v-if="item.name == 'tabNav'" :dataConfig="item" @bindHeight="bindHeighta"
 						@bindSortId="bindSortId" :isFixed="isFixed"></tabNav>
@@ -285,7 +299,6 @@
 			promotionList,
 			richText,
 			seckill,
-			swiperBg,
 			tabNav,
 			titles,
 			appUpdate, //APP更新

@@ -275,16 +275,16 @@ radio .wx-radio-input.wx-radio-input-checked {
 	background-color: var(--view-theme) !important
 }
 
-radio .uni-radio-input {
+/* radio .uni-radio-input {
 	border-radius: 50%;
 	width: 38rpx;
 	height: 38rpx
 }
 
 radio .uni-radio-input.uni-radio-input-checked {
-/* 	border: 1px solid var(--view-theme) !important;
-	background-color: var(--view-theme) !important */
-}
+ 	border: 1px solid var(--view-theme) !important;
+	background-color: var(--view-theme) !important 
+} */
 
 checkbox .wx-checkbox-input {
 	border-radius: 50%;

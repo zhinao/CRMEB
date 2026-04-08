@@ -50,13 +50,18 @@ class AgentManageServices extends BaseServices
         /** @var StoreOrderServices $orderServices */
         $orderServices = app()->make(StoreOrderServices::class);
         foreach ($data['list'] as &$item) {
+
             $item['headimgurl'] = $item['avatar'];
             $item['extract_count_price'] = $item['extract'][0]['extract_count_price'] ?? 0;
             $item['extract_count_num'] = $item['extract'][0]['extract_count_num'] ?? 0;
             $item['spread_name'] = $item['spreadUser']['nickname'] ?? '';
-            if ($item['spread_name']) {
-                $item['spread_name'] .= '/' . $item['spread_uid'];
-            }
+            // if ($item['spread_name']) {
+            //     $item['spread_name'] .= '/' . $item['spread_uid'];
+            // }
+            if($item['spread_uid'])
+                $item['spread_uid']=str_pad($item['spread_uid'], 4, '0', STR_PAD_LEFT);
+            else
+                $item['spread_uid']='';
             $item['spread_count'] = $item['spreadCount'][0]['spread_count'] ?? 0;
             $item['order_price'] = $item['order'][0]['order_price'] ?? 0;
             $item['order_count'] = $item['order'][0]['order_count'] ?? 0;
@@ -74,6 +79,25 @@ class AgentManageServices extends BaseServices
                 $item['headimgurl'] = set_file_url($item['headimgurl']);
             }
             $item['spread_order'] = $orderServices->get(['spread_uid' => $item['uid'], 'paid' => 1, 'refund_status' => 0, 'pid' => 0], ['sum(pay_price) as order_price', 'count(id) as order_count']);
+
+
+            $uid = $item['uid'];
+            $teamUserInfo=$userServices->getTeamUserInfo($uid);
+            if($teamUserInfo!=null)
+            {
+                $item['team_name']=$teamUserInfo['nickname'];
+                $item['team_uid']=str_pad($teamUserInfo['uid'], 4, '0', STR_PAD_LEFT);
+            }
+            else
+            {
+                $item['team_name']='';
+                $item['team_uid']='';
+            }
+
+
+            
+            $item['uid']=str_pad($item['uid'], 4, '0', STR_PAD_LEFT);
+
         }
         return $data;
     }
@@ -260,7 +284,7 @@ class AgentManageServices extends BaseServices
                     $item['user_info'] = $user['nickname'] . '|' . ($user['phone'] ? $user['phone'] . '|' : '') . $user['real_name'];
                     $item['avatar'] = $user['avatar'];
                 }
-                $item['brokerage_price'] = $item['spread_uid'] == $uid ? $item['one_brokerage'] : $item['two_brokerage'];
+                $item['brokerage_price'] = ($item['spread_uid'] == $uid ? $item['one_brokerage'] : $item['two_brokerage'])+  ($item['spread_team_uid'] == $uid ?  $item['team_brokerage'] : 0);
                 $item['_pay_time'] = $item['pay_time'] ? date('Y-m-d H:i:s', $item['pay_time']) : '';
                 $item['_add_time'] = $item['add_time'] ? date('Y-m-d H:i:s', $item['add_time']) : '';
                 $item['take_time'] = ($change_time = $orderChangTimes[$item['id']] ?? '') ? date('Y-m-d H:i:s', $change_time) : '暂无';

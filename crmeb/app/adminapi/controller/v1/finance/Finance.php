@@ -9,8 +9,8 @@
 // | Author: CRMEB Team <admin@crmeb.com>
 // +----------------------------------------------------------------------
 namespace app\adminapi\controller\v1\finance;
-
 use app\services\user\UserBillServices;
+use app\services\user\UserBrokerageServices;
 use think\facade\App;
 use app\adminapi\controller\AuthController;
 
@@ -96,6 +96,23 @@ class Finance extends AuthController
         $where['category'] = 'now_money';
         $where['type'] = ['brokerage', 'brokerage_user'];
         return app('json')->success($this->services->getBillOneList((int)$id, $where));
+    }
+
+
+    public function get_brokerage_list($id = '')
+    {
+        if ($id == '') return app('json')->fail(100100);
+        $where = $this->request->getMore([
+            ['start_time', ''],
+            ['end_time', ''],
+            ['nickname', '']
+        ]);
+        $where['category'] = 'now_money';
+        $where['type'] = ['brokerage', 'brokerage_user'];
+
+        $server=app()->make(UserBrokerageServices::class);
+
+        return app('json')->success($server->getBrokerageList((int)$id,0));
     }
 
 }

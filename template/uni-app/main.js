@@ -86,6 +86,9 @@ if (typeof window.entryUrl === 'undefined' || window.entryUrl === '') {
 
 App.mpType = 'app'
 
+const locale=uni.getStorageSync('locale','');
+if(locale=='')
+	uni.setStorageSync('locale','pt-BR');
 
 const app = new Vue({
 	...App,

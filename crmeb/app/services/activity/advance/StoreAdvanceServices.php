@@ -30,8 +30,8 @@ use crmeb\exceptions\ApiException;
 use crmeb\services\CacheService;
 
 /**
- * 商品预售
- * Class StoreAdvanceServices
+ * 
+ * Class StoreAdvanceServices 商品预售
  * @package app\services\activity
  * @method get(int $id, array $field) 获取一条数据
  * @method getAdvanceStatus(array $ids) 获取预售商品是否开启

@@ -1,7 +1,7 @@
 {
-    "name" : "CRMEB标准版",
-    "appid" : "__UNI__A3F1ED4",
-    "description" : "CRMEB标准版",
+    "name" : "Mall",
+    "appid" : "__UNI__7B21D06",
+    "description" : "Mall",
     "versionName" : "5.4.0",
     "versionCode" : 540,
     "transformPx" : false,
@@ -181,7 +181,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "wx3b82801238ca1b57",
+        "appid" : "wx02f0fa50f073c61e",
         "setting" : {
             "urlCheck" : false,
             "minified" : true,

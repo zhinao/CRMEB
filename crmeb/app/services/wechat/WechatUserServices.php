@@ -344,7 +344,7 @@ class WechatUserServices extends BaseServices
             }
             /** @var LoginServices $loginService */
             $loginService = app()->make(LoginServices::class);
-            $this->transaction(function () use ($loginService, $wechatInfo, $userInfo, $uid, $userType, $spreadId, $wechatUser) {
+            $this->transaction(function () use ($loginService, $wechatInfo, $userInfo, $uid, $userType, $spreadId, $wechatUser, $userServices) {
                 $wechatInfo['code'] = $spreadId;
                 $loginService->updateUserInfo($wechatInfo, $userInfo);
                 if ($wechatUser) {
@@ -355,6 +355,13 @@ class WechatUserServices extends BaseServices
                     $wechatInfo['uid'] = $uid;
                     if (!$this->dao->save($wechatInfo)) {
                         throw new ApiException(100007);
+                    }
+                    
+                    //判断是否有团队长，如果有则赠送永久会员
+                    $teamUserInfo = $userServices->getTeamUserInfo((int)$uid);
+                    if ($teamUserInfo !== null) {
+                        //赠送永久会员
+                        $userServices->setMemberOverdueTime(1, (int)$uid, 1, 'ever');
                     }
                 }
             });
@@ -371,6 +378,14 @@ class WechatUserServices extends BaseServices
                 if (!$this->dao->save($wechatInfo)) {
                     throw new AuthException(410083);
                 }
+                
+                //判断是否有团队长，如果有则赠送永久会员
+                $teamUserInfo = $userServices->getTeamUserInfo((int)$userInfo->uid);
+                if ($teamUserInfo !== null) {
+                    //赠送永久会员
+                    $userServices->setMemberOverdueTime(1, (int)$userInfo->uid, 1, 'ever');
+                }
+                
                 $userInfo['new_user'] = (int)sys_config('get_avatar', 0);
                 return $userInfo;
             });

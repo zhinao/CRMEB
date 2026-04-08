@@ -45,8 +45,8 @@
 			<view class='list acea-row row-between-wrapper'>
 				<navigator url='/pages/users/user_spread_code/index' hover-class="none"
 					class='item acea-row row-center-wrapper row-column'>
-					<text class='iconfont icon-erweima'></text>
-					<view>{{$t(`推广名片`)}}</view>
+					<text class='iconfont icon-erweima blink-icon'></text>
+					<view class="blink-text">{{$t(`推广名片`)}}</view>
 				</navigator>
 				<navigator url='/pages/users/promoter-list/index' hover-class="none"
 					class='item acea-row row-center-wrapper row-column'>
@@ -392,5 +392,22 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+	
+	/* 闪烁动画 */
+	.blink-icon, .blink-text {
+		animation: blinking 1.5s infinite;
+	}
+
+	@keyframes blinking {
+		0% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.3;
+		}
+		100% {
+			opacity: 1;
+		}
 	}
 </style>

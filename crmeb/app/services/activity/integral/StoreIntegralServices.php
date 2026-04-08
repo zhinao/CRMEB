@@ -28,7 +28,7 @@ use crmeb\services\CacheService;
 
 /**
  *
- * Class StoreIntegralServices
+ * Class StoreIntegralServices 积分
  * @package app\services\activity
  * @method getOne(array $where, ?string $field = '*', array $with = []) 根据条件获取一条数据
  * @method get(int $id, ?array $field) 获取一条数据

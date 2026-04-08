@@ -11,6 +11,7 @@ lang = Cache.has('locale') ? Cache.get('locale') : 'zh-CN';
 // #ifdef H5
 lang = Cache.has('locale') ? Cache.get('locale') : navigator.language;
 // #endif
+
 const i18n = new VueI18n({
 	locale: lang,
 	fallbackLocale: 'zh-CN',

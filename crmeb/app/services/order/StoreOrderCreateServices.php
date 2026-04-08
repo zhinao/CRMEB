@@ -447,16 +447,17 @@ class StoreOrderCreateServices extends BaseServices
             }
 
             $orderData = [];
-            $spread_uid = $spread_two_uid = 0;
+            $spread_uid = $spread_two_uid = $spread_team_uid=0;
             /** @var UserServices $userServices */
             $userServices = app()->make(UserServices::class);
             if ($spread_ids) {
-                [$spread_uid, $spread_two_uid] = $spread_ids;
+                [$spread_uid, $spread_two_uid,$spread_team_uid] = $spread_ids;
                 $orderData['spread_uid'] = $spread_uid;
                 $orderData['spread_two_uid'] = $spread_two_uid;
+                $orderData['spread_team_uid'] = $spread_team_uid;
             } else {
                 $spread_uid = $userServices->getSpreadUid($uid);
-                $orderData = ['spread_uid' => 0, 'spread_two_uid' => 0];
+                $orderData = ['spread_uid' => 0, 'spread_two_uid' => 0, 'spread_team_uid' => 0];
                 if ($spread_uid) {
                     $orderData['spread_uid'] = $spread_uid;
                 }
@@ -466,6 +467,7 @@ class StoreOrderCreateServices extends BaseServices
                         $orderData['spread_two_uid'] = $spread_two_uid;
                     }
                 }
+                $spread_team_uid = $userServices->getTeamUid($uid);
             }
             $isCommission = 0;
             if ($order['combination_id']) {
@@ -485,6 +487,8 @@ class StoreOrderCreateServices extends BaseServices
                 $orderComputed = app()->make(StoreOrderComputedServices::class);
                 if ($userServices->checkUserPromoter($spread_uid)) $orderData['one_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'one_brokerage', false);
                 if ($userServices->checkUserPromoter($spread_two_uid)) $orderData['two_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'two_brokerage', false);
+                if ($userServices->checkUserPromoter($spread_team_uid)) $orderData['team_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'team_brokerage', false);
+                
                 $orderData['staff_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'staff_brokerage', false);
                 $orderData['agent_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'agent_brokerage', false);
                 $orderData['division_brokerage'] = $orderComputed->getOrderSumPrice($cartInfo, 'division_brokerage', false);
@@ -796,15 +800,16 @@ class StoreOrderCreateServices extends BaseServices
     public function computeOrderProductBrokerage(int $uid, array $cartInfo)
     {
 
-        [$storeBrokerageRatio, $storeBrokerageTwo, $spread_one_uid, $spread_two_uid] = $this->getSpreadDate($uid);
+        [$storeBrokerageRatio, $storeBrokerageTwo,$storeBrokerageTeam, $spread_one_uid, $spread_two_uid, $spread_team_uid] = $this->getSpreadDate($uid);
 
         /** @var DivisionServices $divisionService */
         $divisionService = app()->make(DivisionServices::class);
-        [$storeBrokerageRatio, $storeBrokerageTwo, $staffPercent, $agentPercent, $divisionPercent] = $divisionService->getDivisionPercent($uid, $storeBrokerageRatio, $storeBrokerageTwo, sys_config('is_self_brokerage', 0));
+        [$storeBrokerageRatio, $storeBrokerageTwo,$staffPercent, $agentPercent, $divisionPercent] = $divisionService->getDivisionPercent($uid, $storeBrokerageRatio, $storeBrokerageTwo, sys_config('is_self_brokerage', 0));
 
         foreach ($cartInfo as &$cart) {
             $oneBrokerage = '0';//一级返佣金额
             $twoBrokerage = '0';//二级返佣金额
+            $teamBrokerage = '0';//团队返佣金额
             $staffBrokerage = '0';//店员返佣金额
             $agentBrokerage = '0';//代理商返佣金额
             $divisionBrokerage = '0';//事业部返佣金额
@@ -834,6 +839,8 @@ class StoreOrderCreateServices extends BaseServices
                 if (isset($productInfo['is_sub']) && $productInfo['is_sub'] == 1) {
                     $oneBrokerage = bcmul((string)($productInfo['attrInfo']['brokerage'] ?? '0'), $cartNum, 2);
                     $twoBrokerage = bcmul((string)($productInfo['attrInfo']['brokerage_two'] ?? '0'), $cartNum, 2);
+                    $teamBrokerage = bcmul((string)($productInfo['attrInfo']['brokerage_team'] ?? '0'), $cartNum, 2);
+
                 } else {
                     if ($price) {
                         //一级返佣比例 小于等于零时直接返回 不返佣
@@ -848,18 +855,26 @@ class StoreOrderCreateServices extends BaseServices
                             $brokerageTwo = bcdiv($storeBrokerageTwo, 100, 4);
                             $twoBrokerage = bcmul((string)$price, (string)$brokerageTwo, 2);
                         }
+                        //团队返佣比例小于等于0 直接返回
+                        if ($storeBrokerageTeam > 0) {
+                            //计算获取二级返佣比例
+                            $brokerageTeam = bcdiv($storeBrokerageTeam, 100, 4);
+                            $teamBrokerage = bcmul((string)$price, (string)$brokerageTeam, 2);
+                        }
                     }
                 }
             }
 
             $cart['one_brokerage'] = $oneBrokerage;
             $cart['two_brokerage'] = $twoBrokerage;
+            $cart['team_brokerage'] = $teamBrokerage;
+            
             $cart['staff_brokerage'] = $staffBrokerage;
             $cart['agent_brokerage'] = $agentBrokerage;
             $cart['division_brokerage'] = $divisionBrokerage;
         }
 
-        return [$cartInfo, [$spread_one_uid, $spread_two_uid]];
+        return [$cartInfo, [$spread_one_uid, $spread_two_uid, $spread_team_uid]];
     }
 
 
@@ -878,7 +893,7 @@ class StoreOrderCreateServices extends BaseServices
     {
         //商城分销是否开启，用户uid是否存在，全部返回0
         if (!sys_config('brokerage_func_status') || !$uid) {
-            return [0, 0, 0, 0];
+            return [0, 0, 0, 0,0,0];
         }
 
         //获取用户信息，获取不到全部返回0
@@ -892,6 +907,8 @@ class StoreOrderCreateServices extends BaseServices
         //获取系统一二级分佣比例
         $storeBrokerageRatio = sys_config('store_brokerage_ratio') != '' ? sys_config('store_brokerage_ratio') : 0;
         $storeBrokerageTwo = sys_config('store_brokerage_two') != '' ? sys_config('store_brokerage_two') : 0;
+        $storeBrokerageTeam = sys_config('store_brokerage_team') != '' ? sys_config('store_brokerage_team') : 0;
+        
 
         //获取上级和上上级的uid，开启自购获取自己和上级的uid
         $spread_one_uid = $userServices->getSpreadUid($uid, $userInfo);
@@ -900,13 +917,18 @@ class StoreOrderCreateServices extends BaseServices
             $spread_two_uid = $userServices->getSpreadUid($spread_one_uid, $one_user_info, false);
         }
 
+        //获取团队长UID
+        $spread_team_uid=$userServices->getTeamUid($uid);
+
+
         //计算分销等级之后的佣金比例
-        [$storeBrokerageRatio, $storeBrokerageTwo] = app()->make(AgentLevelServices::class)->getAgentLevelBrokerage($storeBrokerageRatio, $storeBrokerageTwo, $spread_one_uid, $spread_two_uid);
+        [$storeBrokerageRatio, $storeBrokerageTwo,$storeBrokerageTeam] = app()->make(AgentLevelServices::class)->getAgentLevelBrokerage($storeBrokerageRatio, $storeBrokerageTwo,$storeBrokerageTeam, $spread_one_uid, $spread_two_uid, $spread_team_uid);
 
         //判断返佣层级为一级时，将二级用户uid和二级分佣比例改为0
         if (sys_config('brokerage_level') == 1) {
             $storeBrokerageTwo = $spread_two_uid = 0;
         }
-        return [$storeBrokerageRatio, $storeBrokerageTwo, $spread_one_uid, $spread_two_uid];
+
+        return [$storeBrokerageRatio, $storeBrokerageTwo, $storeBrokerageTeam, $spread_one_uid, $spread_two_uid,$spread_team_uid];
     }
 }

@@ -41,6 +41,8 @@ Route::group('finance', function () {
         Route::get('finance/user_info/:id', 'v1.finance.Finance/user_info')->option(['real_name' => '佣金详情用户信息']);
         //佣金提现记录个人列表
         Route::get('finance/extract_list/:id', 'v1.finance.Finance/get_extract_list')->option(['real_name' => '佣金提现记录个人列表']);
+        //佣金列表
+        Route::get('finance/brokerage_list/:id', 'v1.finance.Finance/get_brokerage_list')->option(['real_name' => '佣金列表个人列表']);
         /** 余额记录 */
         Route::get('balance/list', 'v1.finance.UserBalance/balanceList')->option(['real_name' => '余额记录列表']);
         Route::post('balance/set_mark/:id', 'v1.finance.UserBalance/balanceRecordRemark')->option(['real_name' => '余额记录备注']);

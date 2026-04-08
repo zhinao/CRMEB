@@ -125,9 +125,9 @@
 				if (!that.refundInfo.refund_phone) return this.$util.Tips({
 					title: that.$t(`请输入手机号`)
 				});
-				if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.refundInfo.refund_phone)) return this.$util.Tips({
-					title: that.$t(`请输入正确的手机号码`)
-				});
+				// if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.refundInfo.refund_phone)) return this.$util.Tips({
+				// 	title: that.$t(`请输入正确的手机号码`)
+				// });
 				that.refundInfo.refund_express_name = that.expressList[that.seIndex].name;
 				that.refundInfo.refund_img = that.refund_reason_wap_img.join(',');
 				refundExpress(that.refundInfo).then(res => {

@@ -31,6 +31,7 @@ use EasyWeChat\Payment\Payment;
 use EasyWeChat\Server\Guard;
 use Symfony\Component\HttpFoundation\Request;
 use think\facade\Event;
+use think\facade\Log;
 use think\Response;
 use crmeb\services\SystemConfigService;
 
@@ -45,13 +46,21 @@ class WechatService
      * @var Application
      */
     protected static $instance;
-
+    public static function getPemPath(string $path)
+    {
+        if (strstr($path, 'http://') === false && strstr($path, 'https://') === false) {
+            return $path;
+        } else {
+            $res = parse_url($path);
+            return $res['path'] ?? '';
+        }
+    }
     /**
      * @return array
      */
     public static function options()
     {
-        $wechat = SystemConfigService::more(['wechat_appid', 'wechat_app_appid', 'wechat_app_appsecret', 'wechat_appsecret', 'wechat_token', 'wechat_encodingaeskey', 'wechat_encode']);
+        $wechat = SystemConfigService::more(['routine_appId','routine_appsecret','wechat_appid', 'wechat_app_appid', 'wechat_app_appsecret', 'wechat_appsecret', 'wechat_token', 'wechat_encodingaeskey', 'wechat_encode']);
         $payment = SystemConfigService::more(['pay_weixin_mchid',
             'pay_weixin_client_cert',
             'pay_weixin_client_key',
@@ -61,14 +70,31 @@ class WechatService
             'pay_sub_merchant_id',
             'mer_type'
         ]);
-
-        if (request()->isApp()) {
-            $appId = isset($wechat['wechat_app_appid']) ? trim($wechat['wechat_app_appid']) : '';
-            $appsecret = isset($wechat['wechat_app_appsecret']) ? trim($wechat['wechat_app_appsecret']) : '';
-        } else {
-            $appId = isset($wechat['wechat_appid']) ? trim($wechat['wechat_appid']) : '';
-            $appsecret = isset($wechat['wechat_appsecret']) ? trim($wechat['wechat_appsecret']) : '';
+        //var_dump($payment);
+        // 优先使用微信公众号appid，其次使用APP appid，最后尝试使用支付配置中的sub_app_id
+        $appId = '';
+        $appsecret = '';
+        
+        // 1. 尝试使用微信公众号appid
+        if (isset($wechat['wechat_appid']) && trim($wechat['wechat_appid'])) {
+            $appId = trim($wechat['wechat_appid']);
+            $appsecret = trim($wechat['wechat_appsecret'] ?? '');
         }
+        // 2. 如果公众号appid未配置，尝试使用小程序appid
+        else if (isset($wechat['routine_appId']) && trim($wechat['routine_appId'])) {
+            $appId = trim($wechat['routine_appId']);
+            $appsecret = trim($wechat['routine_appsecret'] ?? '');
+        }
+        // 3. 如果小程序appid未配置，尝试使用APP appid
+        else if (isset($wechat['wechat_app_appid']) && trim($wechat['wechat_app_appid'])) {
+            $appId = trim($wechat['wechat_app_appid']);
+            $appsecret = trim($wechat['wechat_app_appsecret'] ?? '');
+        }
+        // 4. 如果都未配置，尝试使用支付配置中的sub_app_id
+        else if (isset($payment['pay_sub_app_id']) && trim($payment['pay_sub_app_id'])) {
+            $appId = trim($payment['pay_sub_app_id']);
+        }
+        
         $config = [
             'app_id' => $appId,
             'secret' => $appsecret,
@@ -85,8 +111,10 @@ class WechatService
                 'app_id' => $appId,
                 'merchant_id' => trim($payment['pay_weixin_mchid']),
                 'key' => trim($payment['pay_weixin_key']),
-                'cert_path' => substr(public_path(parse_url($payment['pay_weixin_client_cert'])['path']), 0, strlen(public_path(parse_url($payment['pay_weixin_client_cert'])['path'])) - 1),
-                'key_path' => substr(public_path(parse_url($payment['pay_weixin_client_key'])['path']), 0, strlen(public_path(parse_url($payment['pay_weixin_client_key'])['path'])) - 1),
+                'cert_path' => public_path() . self::getPemPath(sys_config('pay_weixin_client_cert')),
+                'key_path' => public_path() . self::getPemPath(sys_config('pay_weixin_client_key')),
+                // 'cert_path' => public_path(trim(parse_url($payment['pay_weixin_client_cert'], PHP_URL_PATH) ?: $payment['pay_weixin_client_cert'])),
+                // 'key_path' => public_path(trim(parse_url($payment['pay_weixin_client_key'], PHP_URL_PATH) ?: $payment['pay_weixin_client_key'])),
                 'notify_url' => trim(sys_config('site_url')) . '/api/pay/notify/wechat'
             ];
 
@@ -340,26 +368,58 @@ class WechatService
      */
     public static function merchantPay(string $openid, string $orderId, string $amount, string $desc)
     {
-        $options = self::options();
-        if (!isset($options['payment']['cert_path'])) {
-            throw new ApiException(410088);
-        }
-        if (!$options['payment']['cert_path']) {
-            throw new ApiException(410088);
-        }
-        $merchantPayData = [
-            'partner_trade_no' => $orderId, //随机字符串作为订单号，跟红包和支付一个概念。
-            'openid' => $openid, //收款人的openid
-            'check_name' => 'NO_CHECK',  //文档中有三种校验实名的方法 NO_CHECK OPTION_CHECK FORCE_CHECK
-            'amount' => (int)bcmul($amount, '100', 0),  //单位为分
-            'desc' => $desc,
-            'spbill_create_ip' => request()->ip(),  //发起交易的IP地址
-        ];
-        $result = self::application()->merchant_pay->send($merchantPayData);
-        if ($result->return_code == 'SUCCESS' && $result->result_code != 'FAIL') {
-            return true;
-        } else {
-            throw new ApiException($result->err_code_des ?? 400658);
+        Log::write('微信支付V2企业付款开始，订单号：' . $orderId . '，金额：' . $amount . '，openid：' . $openid, 'crmeb');
+        
+        try {
+            $options = self::options();
+
+            //var_dump($options);
+            
+            // 检查appid是否配置
+            if (!isset($options['app_id']) || !$options['app_id']) {
+                Log::write('微信支付V2企业付款失败：appid未配置', 'fail');
+                throw new ApiException('微信支付V2企业付款失败：appid未配置');
+            }
+            
+            Log::write('微信支付V2企业付款使用的appid：' . $options['app_id'], 'crmeb');
+            
+            if (!isset($options['payment']['cert_path'])) {
+                Log::write('微信支付V2企业付款失败：缺少证书路径配置', 'fail');
+                throw new ApiException(410088);
+            }
+            if (!$options['payment']['cert_path']) {
+                Log::write('微信支付V2企业付款失败：证书路径为空', 'fail');
+                throw new ApiException(410088);
+            }
+            
+            Log::write('微信支付V2企业付款证书路径：' . $options['payment']['cert_path'], 'crmeb');
+            
+            $merchantPayData = [
+                'partner_trade_no' => $orderId, //随机字符串作为订单号，跟红包和支付一个概念。
+                'openid' => $openid, //收款人的openid
+                'check_name' => 'NO_CHECK',  //文档中有三种校验实名的方法 NO_CHECK OPTION_CHECK FORCE_CHECK
+                'amount' => (int)bcmul($amount, '100', 0),  //单位为分
+                'desc' => $desc,
+                'spbill_create_ip' => request()->ip(),  //发起交易的IP地址
+            ];
+            
+            Log::write('微信支付V2企业付款请求参数：' . json_encode($merchantPayData), 'crmeb');
+            
+            $result = self::application()->merchant_pay->send($merchantPayData);
+            
+            Log::write('微信支付V2企业付款返回结果：' . json_encode($result), 'crmeb');
+            
+            if ($result->return_code == 'SUCCESS' && $result->result_code != 'FAIL') {
+                Log::write('微信支付V2企业付款成功，微信订单号：' . ($result->payment_no ?? ''), 'success');
+                return true;
+            } else {
+                $errorMsg = $result->err_code_des ?? '微信支付V2企业付款失败';
+                Log::write('微信支付V2企业付款失败：' . $errorMsg . '，错误码：' . ($result->err_code ?? ''), 'fail');
+                throw new ApiException($errorMsg ?? 400658);
+            }
+        } catch (\Exception $e) {
+            Log::write('微信支付V2企业付款异常：' . $e->getMessage(), 'fail');
+            throw new ApiException('微信支付V2企业付款异常：' . $e->getMessage());
         }
     }
 

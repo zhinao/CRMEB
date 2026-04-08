@@ -1,6 +1,19 @@
 <template>
-	<diy ref="diy" v-if="isDiy && loading"></diy>
-	<visualization ref="vis" v-else-if="!isDiy && loading"></visualization>
+	<view class="index-container">
+		<diy ref="diy" v-if="isDiy && loading"></diy>
+		<visualization ref="vis" v-else-if="!isDiy && loading"></visualization>
+		<!-- 按钮容器 - 垂直排列 -->
+		<view style="position: fixed; bottom: 200rpx; right: 30rpx; z-index: 999;">
+			<!-- 注册按钮 -->
+			<button class="float-btn" style="background-color: #fc4141; color: white; width: 120rpx; height: 120rpx; margin-bottom: 20rpx; border-radius: 50rpx; display: flex; align-items: center; justify-content: center; box-shadow: 0 4rpx 20rpx rgba(252, 65, 65, 0.4); font-weight: bold;" @click="goToUserPage">
+				<text>注册</text>
+			</button>
+			<!-- 浮动分享按钮 -->
+			<button open-type="share"  class="float-btn" style="background-color: #fc4141; color: white; width: 120rpx; height: 120rpx; border-radius: 50rpx; display: flex; align-items: center; justify-content: center; box-shadow: 0 4rpx 20rpx rgba(252, 65, 65, 0.4); font-weight: bold;" @click="shareToWechat">
+				<text>分享</text>
+			</button>
+		</view>
+	</view>
 </template>
 
 <script>
@@ -47,6 +60,63 @@ export default {
 		this.$Cache.clear('agent_id');
 	},
 	methods: {
+		// 跳转到用户页面
+		goToUserPage() {
+			uni.switchTab({
+				url: '/pages/user/index'
+			});
+		},
+		// 分享给微信好友
+		shareToWechat() {
+			console.log('shareToWechat 1');
+			// #ifdef MP
+			
+			uni.showShareMenu({
+				withShareTicket: true,
+				menus: ['shareAppMessage']
+			});
+			
+			// #endif
+			console.log('shareToWechat 2');
+			
+			// #ifdef APP-PLUS
+			uni.share({
+				provider: 'weixin',
+				scene: 'WXSceneSession', // WXSceneSession为分享到微信好友，WXSceneTimeline为分享到朋友圈
+				type: 0,
+				title: this.shareInfo.title || '商城分享',
+				summary: this.shareInfo.synopsis || '欢迎使用我们的商城',
+				imageUrl: this.shareInfo.img || '',
+				href: '',
+				success: function(res) {
+					uni.showToast({
+						title: '分享成功',
+						icon: 'success'
+					});
+				},
+				fail: function(err) {
+					uni.showToast({
+						title: '分享失败',
+						icon: 'none'
+					});
+				}
+			});
+			// #endif
+			
+			// #ifdef H5
+			if (this.$wechat.isWeixin()) {
+				uni.showToast({
+					title: '请点击右上角分享',
+					icon: 'none'
+				});
+			} else {
+				uni.showToast({
+					title: '请在微信中打开',
+					icon: 'none'
+				});
+			}
+			// #endif
+		},
 		// 绑定员工关系
 		bindAgent(agent_id) {
 			spreadAgent({
@@ -158,4 +228,24 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.float-share-btn {
+	position: fixed;
+	right: 20rpx;
+	bottom: 200rpx;
+	width: 90rpx;
+	height: 90rpx;
+	background: linear-gradient(to right, #1AAD19, #07C160);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.2);
+	z-index: 999;
+}
+
+.float-share-btn .iconfont {
+	color: #ffffff;
+	font-size: 50rpx;
+}
+</style>

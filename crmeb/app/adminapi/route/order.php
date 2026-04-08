@@ -80,6 +80,9 @@ Route::group('order', function () {
     Route::delete('del/:id', 'v1.order.StoreOrder/del')->name('StoreOrderorDel')->option(['real_name' => '删除订单单个']);
     //批量删除订单
     Route::post('dels', 'v1.order.StoreOrder/del_orders')->name('StoreOrderorDels')->option(['real_name' => '批量删除订单']);
+    //批量打印面单
+    Route::post('printOrderAll', 'v1.order.StoreOrder/printOrderAll')->name('printOrderAll')->option(['real_name' => '批量打印面单']);
+    
     //面单默认配置信息
     Route::get('sheet_info', 'v1.order.StoreOrder/getDeliveryInfo')->option(['real_name' => '面单默认配置信息']);
     //获取线下付款二维码

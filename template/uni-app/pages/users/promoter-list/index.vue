@@ -62,7 +62,10 @@
 								<image :src='item.avatar'></image>
 							</view>
 							<view class='text'>
-								<view class='name line1'>{{item.nickname}}</view>
+								<view @click="rename(item,grade)" :style="{cursor:grade==0?'pointer':''}" class=''>{{item.nickname}}{{grade==1 ? ' ⬅ '+item.p_nickname:""}}  </view>
+								
+								<view v-if="item.rename||item.p_rename" @click="rename(item,grade)" :style="{cursor:grade==0?'pointer':''}" class=''>{{ item.rename?item.rename: item.nickname}}{{grade==1 && item.p_rename? ' ⬅ '+(item.p_rename ? item.p_rename: item.p_nickname):""}} </view>
+								
 								<view>{{$t(`加入时间`)}}: {{item.time}}</view>
 							</view>
 						</view>
@@ -92,7 +95,9 @@
 </template>
 
 <script>
+	
 	import {
+		userEdit,
 		spreadPeople
 	} from '@/api/user.js';
 	import {
@@ -151,6 +156,50 @@
 			this.is_show = true;
 		},
 		methods: {
+			rename:function(item,grade)
+			{
+				if(grade==1)
+					return;
+				const self=this;
+				console.log(item);
+				
+				uni.showModal({
+				  title: '输入提示',
+				  content: '',
+				  editable: true,
+				  placeholderText: '请输入备注名...',
+				  success: function (res) {
+				    if (res.confirm) {
+				      console.log('用户输入的内容:', res.content);
+					  
+					  if(!res.content)
+					  {
+						  uni.showToast({
+						  	title:"备注名不能空！",
+						  	icon:"none"
+						  })
+						  return;
+					  }
+					  
+					  
+					  const value={uid:item.uid,rename:res.content};
+				      
+				      userEdit(value).then(res => {
+						  self.submitForm();
+				      	uni.showToast({
+				      		title:"备注成功！",
+							icon:"none"
+				      	})
+				      }).catch(msg => {
+				      	uni.showToast({
+				      		title:msg,
+							icon:"none"
+				      	})
+				      });
+				    }
+				  }
+				});
+			},
 			onLoadFun: function(e) {
 				this.userSpreadNewList();
 			},
@@ -353,7 +402,7 @@
 	}
 
 	.promoter-list .list .item .picTxt .text .name {
-		font-size: 28rpx;
+		font-size: 24rpx;
 		color: #333;
 		margin-bottom: 13rpx;
 	}

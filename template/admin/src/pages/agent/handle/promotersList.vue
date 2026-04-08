@@ -192,6 +192,7 @@ export default {
           { text: '全部', val: '' },
           { text: '一级推广人', val: 1 },
           { text: '二级推广人', val: 2 },
+
         ],
         fromTxt3: [
           { text: '全部', val: '' },
@@ -199,6 +200,7 @@ export default {
           { text: '二级推广人订单', val: 2 },
           { text: '事业部推广订单', val: 3 },
           { text: '代理商推广订单', val: 4 },
+          { text: '团队长推广订单', val: 5 },
         ],
       },
       formValidate: {

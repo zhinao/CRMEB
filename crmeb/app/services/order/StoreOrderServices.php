@@ -148,6 +148,15 @@ class StoreOrderServices extends BaseServices
         return $data;
     }
 
+    //获取订单完成数量
+    public function getOrderCompleteCount(int $uid = 0)
+    {
+        return $this->dao->count([
+            ['status', 'in', [1, 2, 3, 4]],
+            ['uid', '=', $uid],
+            ['pid', '=', 0]
+        ]);
+    }
     /**
      * 获取订单数量
      * @param int $uid
@@ -796,6 +805,10 @@ HTML;
             if ($order['two_brokerage'] > 0) {
                 $data['two_brokerage'] = bcmul((string)$order['two_brokerage'], $percent, 2);
             }
+            if ($order['team_brokerage'] > 0) {
+                $data['team_brokerage'] = bcmul((string)$order['team_brokerage'], $percent, 2);
+            }
+            
             if ($order['staff_brokerage'] > 0) {
                 $data['staff_brokerage'] = bcmul((string)$order['staff_brokerage'], $percent, 2);
             }
@@ -2041,8 +2054,11 @@ HTML;
                 case 4:
                     $where_data['agent_id'] = $uid;
                     break;
+                case 5:
+                    $where_data['spread_team_uid'] = $uid;
+                    break;    
                 default:
-                    $where_data['all_spread'] = $uid;
+                    //$where_data['all_spread'] = $uid;
                     break;
             }
         }

@@ -34,7 +34,7 @@ use crmeb\utils\Arr;
 
 /**
  *
- * Class StoreSeckillServices
+ * Class StoreSeckillServices 秒杀
  * @package app\services\activity
  * @method getSeckillIdsArray(array $ids, array $field)
  * @method get(int $id, array $field) 获取一条数据

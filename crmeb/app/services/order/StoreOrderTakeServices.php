@@ -378,7 +378,7 @@ class StoreOrderTakeServices extends BaseServices
                 /** @var StorePinkServices $pinkServices */
                 $pinkServices = app()->make(StorePinkServices::class);
                 $pinkMasterUid = $pinkServices->value(['id' => $orderInfo['pink_id']], 'uid');
-                if ($orderInfo['uid'] == $pinkMasterUid && $userServices->checkUserPromoter($pinkMasterUid)) {
+                if ($orderInfo['uid'] == $pinkMasterUid && $userServices->checkUserPromoter($pinkMasterUid) /* 检测是否是分销员 */) {
                     $pinkMasterPrice = bcmul((string)$orderInfo['pay_price'], bcdiv((string)$combinationInfo['head_commission'], 100, 2), 2);
                     $userServices->bcInc($pinkMasterUid, 'brokerage_price', $pinkMasterPrice, 'uid');
                     //冻结时间
@@ -456,6 +456,7 @@ class StoreOrderTakeServices extends BaseServices
         }
         // 一级返佣成功 跳转二级返佣
         $res = $res1 && $this->backOrderBrokerageTwo($orderInfo, $userInfo, $isSelfBrokerage, $frozen_time);
+
         return $res;
     }
 
@@ -491,9 +492,9 @@ class StoreOrderTakeServices extends BaseServices
             }
             $spread_two_uid = $isSelfbrokerage ? $userInfoTwo['uid'] : $userInfoTwo['spread_uid'];
         }
-        // 获取后台分销类型  1 指定分销 2 人人分销
+        // //检测是否是分销员 获取后台分销类型  1 指定分销 2 人人分销
         if (!$userServices->checkUserPromoter($spread_two_uid)) {
-            return true;
+            return $this->backOrderBrokerageTeam($orderInfo, $userInfo, $isSelfbrokerage, $frozenTime);
         }
         $brokeragePrice = $orderInfo['two_brokerage'] ?? 0;
         // 返佣金额小于等于0 直接返回不返佣金
@@ -521,6 +522,65 @@ class StoreOrderTakeServices extends BaseServices
         $res2 = $userServices->bcInc($spread_two_uid, 'brokerage_price', $brokeragePrice, 'uid');
         //给上级发送获得佣金的模板消息
         $this->sendBackOrderBrokerage($orderInfo, $spread_two_uid, $brokeragePrice);
+        return $res1 && $res2 && $this->backOrderBrokerageTeam($orderInfo, $userInfo, $isSelfbrokerage, $frozenTime);
+        
+    }
+
+    /**
+     * 团队推广返佣
+     * @param $orderInfo
+     * @param $userInfo
+     * @param $isSelfbrokerage
+     * @param $frozenTime
+     * @return bool
+     */
+    public function backOrderBrokerageTeam($orderInfo, $userInfo, $isSelfbrokerage = 0, $frozenTime = 0)
+    {
+        //绑定失效
+        if (isset($orderInfo['spread_team_uid']) && $orderInfo['spread_team_uid'] == -1) {
+            return true;
+        }
+        /** @var UserServices $userServices */
+        $userServices = app()->make(UserServices::class);
+        if (isset($orderInfo['spread_team_uid']) && $orderInfo['spread_team_uid']) {
+            $spread_team_uid = $orderInfo['spread_team_uid'];
+        } else {
+
+            $order_uid=$orderInfo['uid'];
+            $spread_team_uid =  $userServices->getTeamUid($order_uid);
+        }
+
+        // //检测是否是分销员 获取后台分销类型  1 指定分销 2 人人分销
+        if (!$userServices->checkUserPromoter($spread_team_uid)) {
+            return true;
+        }
+
+        $brokeragePrice = $orderInfo['team_brokerage'] ?? 0;
+        // 返佣金额小于等于0 直接返回不返佣金
+        if ($brokeragePrice <= 0) {
+            return true;
+        }
+        // 获取团队长信息
+        $spreadPrice = $userServices->value(['uid' => $spread_team_uid], 'brokerage_price');
+        // 获取获取团队长信息返佣之后余额
+        $balance = bcadd($spreadPrice, $brokeragePrice, 2);
+
+        // 添加佣金记录
+        /** @var UserBrokerageServices $userBrokerageServices */
+        $userBrokerageServices = app()->make(UserBrokerageServices::class);
+        //冻结时间
+        $frozenTime = time() + intval(sys_config('extract_time')) * 86400;
+        $res1 = $userBrokerageServices->income('get_team_brokerage', $spread_team_uid, [
+            'nickname' => $userInfo['nickname'],
+            'pay_price' => floatval($orderInfo['pay_price']),
+            'number' => floatval($brokeragePrice),
+            'frozen_time' => $frozenTime
+        ], $balance, $orderInfo['id']);
+
+        // 添加用户余额
+        $res2 = $userServices->bcInc($spread_team_uid, 'brokerage_price', $brokeragePrice, 'uid');
+        //给上级发送获得佣金的模板消息
+        $this->sendBackOrderBrokerage($orderInfo, $spread_team_uid, $brokeragePrice);
         return $res1 && $res2;
     }
 

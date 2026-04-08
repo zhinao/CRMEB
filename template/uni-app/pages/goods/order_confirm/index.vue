@@ -1030,11 +1030,11 @@
 							title: that.$t(`请填写联系人或联系人电话`)
 						});
 					}
-					if (!/^1(3|4|5|7|8|9|6)\d{9}$/.test(that.contactsTel)) {
-						return that.$util.Tips({
-							title: that.$t(`请输入正确的手机号码`)
-						});
-					}
+					// if (!/^1(3|4|5|7|8|9|6)\d{9}$/.test(that.contactsTel)) {
+					// 	return that.$util.Tips({
+					// 		title: that.$t(`请输入正确的手机号码`)
+					// 	});
+					// }
 					if (!that.contacts) {
 						return that.$util.Tips({
 							title: that.$t(`请输入姓名`)

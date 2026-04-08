@@ -1,5 +1,6 @@
 <template>
 	<view class="new-users copy-data" :style="{height:pageHeight}">
+		
 		<view class="top" :style="colorStyle">
 			<!-- #ifdef MP || APP-PLUS -->
 			<view class="sys-head">
@@ -27,38 +28,44 @@
 								</button> -->
 								<!-- #endif -->
 								<!-- #ifndef APP-PLUS -->
-								<view class="avatar-box" :class="{on:userInfo.is_money_level}">
-									<image class="avatar" :src='userInfo.avatar' v-if="userInfo.avatar" @click="goEdit()">
-									</image>
-									<image v-else class="avatar" src="/static/images/f.png" mode="" @click="goEdit()">
-									</image>
-									<view class="headwear" v-if="userInfo.is_money_level && userInfo.svip_open">
-										<image src="/static/images/headwear.png"></image>
-									</view>
-								</view>
-								<!-- #endif -->
-								<!-- #ifdef APP-PLUS -->
-								<view class="avatar-box" :class="{on:userInfo.is_money_level}">
-									<image class="avatar" :src='userInfo.avatar' v-if="userInfo.avatar" @click="goEdit()">
-									</image>
-									<image v-else class="avatar" src="/static/images/f.png" mode="" @click="goEdit()">
-									</image>
-									<view class="headwear" v-if="userInfo.is_money_level && userInfo.svip_open">
-										<image src="/static/images/headwear.png"></image>
-									</view>
-								</view>
+						<view class="avatar-box" :class="{on:userInfo.is_money_level}">
+							<image class="avatar" :src='userInfo.avatar' v-if="userInfo.avatar" @click="goEdit()">
+							</image>
+							<image v-else class="avatar" src="/static/images/f.png" mode="" @click="goEdit()" v-if="!userInfo.uid" style="animation: blink 1.5s infinite;">
+							</image>
+							<image v-else-if="!userInfo.avatar" class="avatar" src="/static/images/f.png" mode="" @click="goEdit()">
+							</image>
+							<view class="headwear" v-if="userInfo.is_money_level && userInfo.svip_open">
+								<image src="/static/images/headwear.png"></image>
+							</view>
+						</view>
+						<!-- #endif -->
+						<!-- #ifdef APP-PLUS -->
+						<view class="avatar-box" :class="{on:userInfo.is_money_level}">
+							<image class="avatar" :src='userInfo.avatar' v-if="userInfo.avatar" @click="goEdit()">
+							</image>
+							<image v-else class="avatar" src="/static/images/f.png" mode="" @click="goEdit()" v-if="!userInfo.uid" style="animation: blink 1.5s infinite;">
+							</image>
+							<image v-else-if="!userInfo.avatar" class="avatar" src="/static/images/f.png" mode="" @click="goEdit()">
+							</image>
+							<view class="headwear" v-if="userInfo.is_money_level && userInfo.svip_open">
+								<image src="/static/images/headwear.png"></image>
+							</view>
+						</view>
 								<!-- #endif -->
 							</view>
 							<view class="info">
 								<!-- #ifdef MP || APP-PLUS -->
 								<view class="name" v-if="!userInfo.uid" @click="openAuto"
-									style="height: 100%; display: flex; align-items: center;">
+									style="height: 100%; display: flex; align-items: center; animation: blink 1.5s infinite; color: white; font-size: 36rpx;">
+									<text class="arrow-icon">←</text>
 									{{$t('请点击授权')}}
 								</view>
 								<!-- #endif -->
 								<!-- #ifdef H5 -->
 								<view class="name" v-if="!userInfo.uid" @click="openAuto"
-									style="height: 100%; display: flex; align-items: center;">
+									style="height: 100%; display: flex; align-items: center; animation: blink 1.5s infinite; color: white; font-size: 36rpx;">
+									<text class="arrow-icon">←</text>
 									{{$t(isWeixin ? '请点击授权' : '请点击登录')}}
 								</view>
 								<!-- #endif -->
@@ -82,6 +89,13 @@
 								</view>
 								<!-- #endif -->
 							</view>
+							
+
+							
+<!-- 							<view class="message">
+								<image @click="setLang" :src="locale=='pt-BR'?'../users/static/pt-br.png':'../users/static/zh-cn.png'" style="top:-5px;width:32px;height:32px;" ></image>
+							</view> -->
+							
 							<view class="message">
 								<navigator v-if="isLogin" url="/pages/users/user_info/index" hover-class="none">
 									<view class="iconfont icon-shezhi"></view>
@@ -109,14 +123,14 @@
 								<text class="num">{{userInfo.collectCount || 0}}</text>
 								<view class="txt">{{$t('收藏')}}</view>
 							</view>
-							<view class="num-item" @click="goMenuPage('/pages/users/user_coupon/index')">
+							<!-- <view class="num-item" @click="goMenuPage('/pages/users/user_coupon/index')">
 								<text class="num">{{userInfo.couponCount || 0}}</text>
 								<view class="txt">{{$t('优惠券')}}</view>
 							</view>
 							<view class="num-item" @click="goMenuPage('/pages/users/user_integral/index')">
 								<text class="num">{{userInfo.integral || 0}}</text>
 								<view class="txt">{{$t('积分')}}</view>
-							</view>
+							</view> -->
 						</view>
 						<!-- <view class="sign" @click="goSignIn">签到</view> -->
 						<view class="cardVipA acea-row row-between-wrapper" v-if="userInfo.svip_open && member_style==1">
@@ -234,8 +248,8 @@
 								&& item.url!='/pages/extension/customer_list/chat' 
 								|| (item.url=='/pages/extension/customer_list/chat' && routineContact == 0)"
 								@click="goMenuPage(item.url, item.name)">
-								<image :src="item.pic"></image>
-								<text>{{$t(item.name)}}</text>
+								<image :src="item.pic" :class="{'blink-icon': item.name === '我的推广'}"></image>
+								<text :class="{'blink-text': item.name === '我的推广'}">{{$t(item.name)}}</text>
 							</view>
 						</block>
 
@@ -335,6 +349,7 @@
 		mixins: [colors],
 		data() {
 			return {
+				locale:uni.getStorageSync('locale','pt-BR'),
 				editModal: false, // 编辑头像信息
 				storeMenu: [], // 商家管理
 				orderMenu: [{
@@ -464,6 +479,39 @@
 			this.onLoadFun();
 		},
 		methods: {
+			setLang()
+			{
+				if(this.locale=='pt-BR')
+				{
+					this.locale='zh-CN';
+				}
+				else
+				{
+					this.locale='pt-BR';
+				}
+				//uni.setStorageSync('locale',this.locale);
+				this.changeLanguage(this.locale);
+				
+				//console.log(uni.getStorageSync('locale'));
+			},
+			changeLanguage(lang) {
+			  // 1. 保存语言设置到本地存储
+			  uni.setStorageSync('locale', lang);
+			  
+			  // // 2. 更新全局语言状态（根据CRMEB实际结构调整）
+			  this.$i18n.locale = lang;
+			  getApp().globalData.lang = lang;
+			  
+			  // 3. 获取当前页面路径
+			  const pages = getCurrentPages();
+			  const currentPage = pages[pages.length - 1];
+			  const currentRoute = currentPage.route;
+			  
+			  // 4. 使用reLaunch重新加载当前页
+			  uni.reLaunch({
+			    url: '/' + currentRoute
+			  });
+			},
 			getWechatuserinfo() {
 				//#ifdef H5
 				Auth.isWeixin() && Auth.toAuth('snsapi_userinfo', '/pages/user/index');
@@ -769,6 +817,10 @@
 </script>
 
 <style lang="scss">
+@keyframes blink {
+	0%, 50%, 100% { opacity: 1; }
+	25%, 75% { opacity: 0.3; }
+}
 	page,
 	body {
 		height: 100%;
@@ -1358,5 +1410,45 @@
 		padding-bottom: 0;
 		padding-bottom: constant(safe-area-inset-bottom);
 		padding-bottom: env(safe-area-inset-bottom);
+	}
+	
+	/* 闪烁动画效果 */
+	.blink-icon, .blink-text {
+		animation: blinking 1.5s infinite;
+	}
+	
+	@keyframes blinking {
+		0% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.3;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+	
+	/* 箭头运动动画 */
+	.arrow-icon {
+		margin-right: 10rpx;
+		color: #4CD964; /* 绿色 */
+		font-size: 72rpx; /* 继续放大 */
+		animation: arrowMove 1.5s infinite;
+	}
+	
+	@keyframes arrowMove {
+		0% {
+			transform: translateX(0rpx);
+			opacity: 0.8;
+		}
+		50% {
+			transform: translateX(-20rpx); /* 向左移动 */
+			opacity: 1;
+		}
+		100% {
+			transform: translateX(0rpx);
+			opacity: 0.8;
+		}
 	}
 </style>

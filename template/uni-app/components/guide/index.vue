@@ -50,8 +50,10 @@
 		},
 		methods: {
 			timer() {
-				this.times = this.advData.time
-				let t = this.advData.time || 5
+				// 确保 advData 存在且有时间数据
+				const defaultTime = 5;
+				this.times = this.advData && this.advData.time ? this.advData.time : defaultTime;
+				let t = this.times;
 				this.timecount = setInterval(() => {
 					t--
 					this.times = t

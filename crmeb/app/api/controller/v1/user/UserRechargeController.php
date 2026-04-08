@@ -13,7 +13,7 @@ namespace app\api\controller\v1\user;
 use app\Request;
 use app\services\pay\PayServices;
 use app\services\user\UserRechargeServices;
-
+use app\services\user\UserServices;
 /**
  * 充值类
  * Class UserRechargeController
@@ -42,6 +42,9 @@ class UserRechargeController
      */
     public function recharge(Request $request)
     {
+
+        
+
         [$price, $recharId, $type, $from] = $request->postMore([
             ['price', 0],
             ['rechar_id', 0],
@@ -54,6 +57,14 @@ class UserRechargeController
         $storeMinRecharge = sys_config('store_user_min_recharge');
         if (!$recharId && $price < $storeMinRecharge) return app('json')->fail(410124, null, ['money' => $storeMinRecharge]);
         $uid = (int)$request->uid();
+
+        $userService = app()->make(UserServices::class);
+        $user = $userService->getUserInfo($uid);
+        if($user['pay_count']==0){
+            return app('json')->fail('请购买产品后再进行提现');
+        }
+
+
         $re = $this->services->recharge($uid, $price, $recharId, $type, $from, true);
         if ($re) {
             $payType = $re['pay_type'] ?? '';

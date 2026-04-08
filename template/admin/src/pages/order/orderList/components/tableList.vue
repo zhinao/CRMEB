@@ -305,7 +305,11 @@
       <div class="acea-row row-middle mb10 mt10">
         <el-button v-db-click @click="exportDeliveryList">导出发货单</el-button>
         <div class="pl20 tips"></div>
+                <el-button v-db-click @click="printOrderAll">直接打印快递面单</el-button>
+        <div class="pl20 tips"></div>
       </div>
+
+
       <el-upload
         class="upload-demo"
         accept=".doc,.docx,.xls,.xlsx"
@@ -839,6 +843,33 @@ export default {
             });
         } else {
           this.$message.error('您选择的的订单存在用户未删除的订单，无法删除用户未删除的订单！');
+        }
+      }
+    },
+    printOrderAll() {
+      if (this.delIdList.length === 0) {
+        this.$message.error('请先选择要打印的订单！');
+      } else {
+        if (this.isDels) {
+          let idss = {
+            ids: this.delIdList,
+          };
+          let delfromData = {
+            title: '打印面单',
+            url: `/order/printOrderAll`,
+            method: 'post',
+            ids: idss,
+          };
+          this.$modalSure(delfromData)
+            .then((res) => {
+              this.$message.success(res.msg);
+              this.getList();
+            })
+            .catch((res) => {
+              this.$message.error(res.msg);
+            });
+        } else {
+          this.$message.error('批量打印失败！');
         }
       }
     },

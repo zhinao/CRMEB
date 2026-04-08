@@ -140,10 +140,12 @@ class OutStoreProductServices extends BaseServices
             if ($data['is_sub'] == 0) {
                 $item['brokerage'] = '0.00';
                 $item['brokerage_two'] = '0.00';
+                $item['brokerage_team'] = '0.00';
             } else {
                 $item['brokerage'] = sprintf("%.2f", $item['brokerage'] ?? '0.00');
                 $item['brokerage_two'] = sprintf("%.2f", $item['brokerage'] ?? '0.00');
-                if (bccomp(bcadd($item['brokerage'], $item['brokerage_two']), $item['price']) == 1) {
+                $item['brokerage_team'] = sprintf("%.2f", $item['brokerage_team'] ?? '0.00');
+                if (bccomp(bcadd($item['brokerage'], $item['brokerage_two'], $item['brokerage_team']), $item['price']) == 1) {
                     throw new AdminException(400572);
                 }
             }
@@ -332,6 +334,8 @@ class OutStoreProductServices extends BaseServices
                 $result['value'][$k]['volume'] = sprintf("%.2f", $v['volume'] ?? '0.00');
                 $result['value'][$k]['brokerage'] = sprintf("%.2f", $v['brokerage'] ?? '0.00');
                 $result['value'][$k]['brokerage_two'] = sprintf("%.2f", $v['brokerage_two'] ?? '0.00');
+                $result['value'][$k]['brokerage_team'] = sprintf("%.2f", $v['brokerage_team'] ?? '0.00');
+                
                 $result['value'][$k]['vip_price'] = sprintf("%.2f", $v['vip_price'] ?? '0.00');
 
                 unset($result['value'][$k]['is_virtual'], $result['value'][$k]['stock']);
@@ -352,6 +356,7 @@ class OutStoreProductServices extends BaseServices
                 'volume' => $result['volume'] ?? '0.00',
                 'brokerage' => $result['brokerage'] ?? '0.00',
                 'brokerage_two' => $result['brokerage_two'] ?? '0.00',
+                'brokerage_team' => $result['brokerage_team'] ?? '0.00',
                 'vip_price' => $result['vip_price'] ?? '0.00',
             ];
         }

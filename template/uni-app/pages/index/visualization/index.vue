@@ -31,8 +31,28 @@
 		<view class="skeleton" id="pageIndexs" :style="{ visibility: showSkeleton ? 'hidden' : 'visible' }">
 			<headerSerch class="mp-header skeleton" :dataConfig="headerSerch.default"
 				@click.native="bindEdit('headerSerch', 'default')"></headerSerch>
-			<!-- 轮播 -->
-			<swiperBg :dataConfig="swiperBg.default" @click.native="bindEdit('swiperBg', 'default')"></swiperBg>
+			<!-- 视频播放器 -->
+			<view class="video-container skeleton">
+				<video 
+					class="video-player" 
+					src="http://cdn.danao.net.cn" 
+					:poster="imgHost + '/logo.jpg'"
+					:autoplay="true"
+					:loop="true"
+					:muted="true"
+					:controls="true"
+					:show-fullscreen-btn="true"
+					:show-play-btn="true"
+					:show-center-play-btn="true"
+					object-fit="cover"
+					@loadstart="videoLoading = true"
+					@loadeddata="videoLoading = false"
+					@error="videoLoading = false"
+				></video>
+				<view class="video-loading" v-if="videoLoading">
+					<image :src="imgHost + '/logo.jpg'" mode="aspectFit"></image>
+				</view>
+			</view>
 			<!-- 金刚区 -->
 			<menus :dataConfig="menus.default" @click.native="bindEdit('menus', 'default')"></menus>
 			<!-- 新闻简报 -->
@@ -53,12 +73,10 @@
 			<recommend :dataConfig="goodList.aa" @click.native="bindEdit('goodList', 'aa')"></recommend>
 			<!-- 排行榜 -->
 			<popular :dataConfig="goodList.bb" @click.native="bindEdit('goodList', 'bb')"></popular>
-			<!-- 商品轮播 -->
-			<mBanner :dataConfig="swiperBg.aa" @click.native="bindEdit('swiperBg', 'aa')"></mBanner>
+
 			<!-- 首发新品 -->
 			<newGoods :dataConfig="goodList.cc" @click.native="bindEdit('goodList', 'cc')"></newGoods>
-			<!-- 精品推荐 -->
-			<!-- <mBanner :dataConfig="swiperBg.cc" @click.native="bindEdit('swiperBg','cc')"></mBanner> -->
+
 			<!-- <titles :dataConfig="titles.default" :sty="'off'" @click.native="bindEdit('titles','default')"></titles> -->
 			<!-- 商品轮播 -->
 			<!-- 		<customerService :dataConfig="customerService.default" @click.native="bindEdit('customerService','default')"></customerService> -->
@@ -119,7 +137,6 @@
 	import couponWindow from "@/components/couponWindow/index";
 	import indexGoods from "@/components/indexGoods/index";
 	import headerSerch from "./components/headerSerch";
-	import swiperBg from "./components/swiperBg";
 	import menus from "./components/menus";
 	import news from "./components/news";
 	import activity from "./components/activity";
@@ -191,7 +208,6 @@
 		components: {
 			couponWindow,
 			headerSerch,
-			swiperBg,
 			menus,
 			news,
 			activity,
@@ -255,7 +271,6 @@
 				site_config: "",
 				isIframe: app.globalData.isIframe,
 				headerSerch: {}, //头部搜索
-				swiperBg: {}, //轮播
 				menus: {}, //导航
 				news: {}, //消息公告
 				activity: {}, //活动魔方
@@ -499,7 +514,6 @@
 				getDiy().then((res) => {
 					let data = res.data;
 					that.headerSerch = data.headerSerch;
-					that.swiperBg = data.swiperBg;
 					that.menus = data.menus;
 					that.news = data.news;
 					that.activity = data.activity;
@@ -927,5 +941,39 @@
 		//top: 110rpx;
 		/* #endif */
 		// overflow-x: scroll;
+	}
+
+	.video-container {
+		position: relative;
+		width: 100%;
+		height: 400rpx;
+		margin: 20rpx 0;
+		border-radius: 10rpx;
+		overflow: hidden;
+		background-color: #000;
+
+		.video-player {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		.video-loading {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background-color: #f5f5f5;
+
+			image {
+				width: 200rpx;
+				height: 200rpx;
+				border-radius: 10rpx;
+			}
+		}
 	}
 </style>

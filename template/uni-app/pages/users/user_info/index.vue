@@ -48,7 +48,7 @@
 						<view class='input acea-row row-between-wrapper'>
 							<view class=""></view>
 							<view class="">
-								<text>{{userInfo.uid}}</text>
+								<text>{{userInfo.uid.toString().padStart(4, '0')}}</text>
 								<text class='iconfont icon-suozi'></text>
 							</view>
 						</view>

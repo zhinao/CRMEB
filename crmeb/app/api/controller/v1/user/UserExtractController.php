@@ -13,7 +13,7 @@ namespace app\api\controller\v1\user;
 use app\Request;
 use app\services\user\UserExtractServices;
 use think\facade\Config;
-
+use app\services\order\StoreOrderServices;
 /**
  * 提现类
  * Class UserExtractController
@@ -50,6 +50,10 @@ class UserExtractController
      */
     public function cash(Request $request)
     {
+        $uid = (int)$request->uid();
+        $count=app()->make(StoreOrderServices::class)->getOrderCompleteCount($uid);
+        if($count<=0) return app('json')->fail('请购买产品后再进行提现');
+
         $extractInfo = $request->postMore([
             ['alipay_code', ''],
             ['extract_type', ''],
@@ -73,7 +77,11 @@ class UserExtractController
             if (!$extractInfo['cardnum']) return app('json')->fail(410118);
             if (!$extractInfo['bankname']) return app('json')->fail(410119);
         }
-        $uid = (int)$request->uid();
+        
+
+
+
+
         if ($this->services->cash($uid, $extractInfo))
             return app('json')->success(410120);
         else

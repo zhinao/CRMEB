@@ -458,9 +458,9 @@
 </script>
 
 <style scoped lang="scss">
-	::v-deep .disabled .uni-radio-input {
-		background-color: #F8F8F8;
-	}
+	// ::v-deep .disabled .uni-radio-input {
+	// 	background-color: #F8F8F8;
+	// }
 
 	form {
 		font-size: 28rpx;

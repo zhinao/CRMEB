@@ -3,9 +3,19 @@
 		<view class="header">
 			<text class="title">洗护产品调查问卷</text>
 		</view>
+		
+		<view v-for="(item,index) in wenjuan" class="section" :key="item.id">
+			<text class="section-title">{{item.title}}</text>
+			<radio-group @change="updateAnswer($event.detail.value)">
+				<label class="radio-item" v-for="(item2, index2) in item.content" :key="item2.id">
+					<radio :value="item2.id" :checked="item2.checked" /> {{ item2.title }}
+				</label>
+			</radio-group>
+		</view>
+		
 
 		<!-- 基础信息收集 -->
-		<view class="section">
+<!-- 		<view class="section">
 			<text class="section-title">一、基础信息收集</text>
 			<view class="question">
 				<text class="question-title">头发长度：</text>
@@ -33,10 +43,10 @@
 					</label>
 				</radio-group>
 			</view>
-		</view>
+		</view> -->
 
 		<!-- 头皮状况诊断 -->
-		<view class="section">
+<!-- 		<view class="section">
 			<text class="section-title">二、头皮状况诊断</text>
 			<view class="question">
 				<text class="question-title">头皮类型：</text>
@@ -55,10 +65,10 @@
 					</label>
 				</radio-group>
 			</view>
-		</view>
+		</view> -->
 
 		<!-- 护发问题筛查 -->
-		<view class="section">
+<!-- 		<view class="section">
 			<text class="section-title">三、护发问题筛查</text>
 			<view class="question">
 				<text class="question-title">头发易打结/断裂：</text>
@@ -77,7 +87,9 @@
 					</label>
 				</radio-group>
 			</view>
-		</view>
+		</view> -->
+		
+		
 
 		<!-- 提交按钮 -->
 		<view class="submit-section">
@@ -93,20 +105,25 @@
         <text class="popup-close" @click="close">×</text>
       </view>
       
-      <view class="product-info">
+	  <view style="margin-top:5px;color:#009900;text-align: center;font-size:14px;font-weight: bold;">{{product.product_sel_txt}}</view>
+	 <view v-for="(product,index) in products" >
+      <view @click="confirm(product.id)" style="cursor: pointer;" class="product-info">
         <image class="product-image" :src="product.image" mode="aspectFit"></image>
         <view class="product-details">
-          <text class="product-name">{{ product.store_name }}</text>
+          <text class="product-name">{{ product.name }}</text>
           <text class="product-price">¥{{ product.price }}</text>
         </view>
       </view>
+	  </view>
       
       <view class="advice-section">
         <text class="section-title">护发建议</text>
-        <text class="advice-content">{{ product.advice }}</text>
+		<view v-for="(item,index) in product.advice">
+        <text class="advice-content">{{index+1}}. {{item}}</text>
+		</view>
       </view>
       
-      <button class="confirm-btn" @click="confirm">立即购买</button>
+      <button class="confirm-btn" @click="confirm(0)">立即购买</button>
     </view>
   </view>
   
@@ -117,11 +134,12 @@
 
 <script>
 	import { getProductDetail} from '@/api/store.js';
-	
+	import { recommendProducts,initWenjuan} from '@/api/qa.js';
 	export default {
 		data() {
 			return {
 				visible:false,
+				products:[],
 				product:{
 					store_name: "",
 					image: "",
@@ -129,55 +147,192 @@
 					advice: ""
 				},
 				answers: {},
-				// 问卷选项
-				hairLengthOptions: ["中长发", "短发", "寸头", "光头"],
-				hairTextureOptions: ["细软发", "粗硬发", "不粗不细"],
-				hairTypeOptions: [
-					"容易出油，触摸有油腻感",
-					"发丝干枯、毛躁、分叉、打结",
-					"不干不油，柔软顺滑有光泽",
-				],
-				scalpTypeOptions: [
-					"头皮油（非常油腻、伴有脂溢性皮炎）",
-					"头皮干",
-					"头皮不干不油",
-					"不清楚自身头皮类型",
-				],
-				dandruffOptions: [
-					"头皮屑多（易脱落如雪花 / 粘附头皮难脱落）",
-					"头皮屑少",
-				],
-				yesNoOptions: ["是", "否"],
-				washFrequencyOptions: [
-					"每天或隔天洗（易出油）",
-					"每周2-3次（中性）",
-					"每周1次或更少（干性）",
-				],
+				selectIndexs:{},
+				wenjuan:[],
+				_wenjuan:[],//原始数据
+				map_id_object:{},
+				selectId:"",
+				
+					
+				
+				// // 问卷选项
+				// hairLengthOptions: ["中长发", "短发", "寸头", "光头"],
+				// hairTextureOptions: ["细软发", "粗硬发", "不粗不细"],
+				// hairTypeOptions: [
+				// 	"容易出油，触摸有油腻感",
+				// 	"发丝干枯、毛躁、分叉、打结",
+				// 	"不干不油，柔软顺滑有光泽",
+				// ],
+				// scalpTypeOptions: [
+				// 	"头皮油",
+				// 	"头皮干",
+				// 	"头皮不干不油",
+				// 	"不清楚自身头皮类型",
+				// ],
+				// dandruffOptions: [
+				// 	"头皮屑多（易脱落如雪花 / 粘附头皮难脱落）",
+				// 	"头皮屑少",
+				// ],
+				// yesNoOptions: ["是", "否"],
+				// washFrequencyOptions: [
+				// 	"每天或隔天洗（易出油）",
+				// 	"每周2-3次（中性）",
+				// 	"每周1次或更少（干性）",
+				// ],
 			};
 		},
+		onLoad() {
+			console.log('onload');
+			
+		},
+		onShow() {
+			let self=this;
+				console.log('onshow');
+				initWenjuan().then(res =>{
+					const arr=res.data.wenjuan;
+					const map_id_object={};
+					self.setParentObj(null,arr,map_id_object);
+					self.setToObj(arr,map_id_object);
+					self._wenjuan=arr;
+					self.map_id_object=map_id_object;
+					self.setWenjun(map_id_object["洗头膏调查问卷大纲"]);
+					
+				});
+		},
 		methods: {
+			
+			setParentObj(p,arr,map_id_object)
+			{
+				
+				for (var key in arr) {
+					const s=arr[key];
+					console.log(p);
+					s.p_id=p?p.id:0;
+					map_id_object[s.id]=s;
+					if(s.content)
+						this.setParentObj(s,s.content,map_id_object);
+				}
+			},
+			setToObj(arr,map_id_object)
+			{
+				for (var key in arr) {
+					const s=arr[key];
+					if(s.to_id)
+						s.to_obj=map_id_object[s.to_id];
+					if(s.content)
+						this.setToObj(s.content,map_id_object);
+				}
+			},
+			setWenjun(obj)
+			{
+				//console.log(obj.title,obj);
+				const arr=[];
+				
+				let tmp=obj;
+				let i=0;
+				while(tmp)
+				{
+					console.log(i++);
+					console.log(tmp.id,tmp);
+					
+					if(tmp.content)
+					{
+						for (var key in tmp.content) {
+							const s= tmp.content[key];
+							s.p_id=tmp.id;
+							if(s.title.indexOf('？')>0)
+							{
+								arr.push(s);
+							}
+						}
+					}
+					tmp=this.map_id_object[tmp.p_id] ;
+				}
+				let wenjuan=[];
+				wenjuan.push(...arr.reverse());
+				this.wenjuan=wenjuan;
+			},
+			
+			confirm(id)
+			{
+				if(!id)
+					id=this.product.id;
+				uni.navigateTo({
+					url:`/pages/goods_details/index?id=${id}`
+				});
+			},
 			close()
 			{
 				this.visible=false;
 			},
-			updateAnswer(question, value) {
-				this.answers[question] = value;
+			updateAnswer(id) {
+				const obj=this.map_id_object[id];
+				//console.log(obj.title,obj.to_id,obj);
+				if(obj.to_id)
+				{
+					const content=this.map_id_object[obj.to_id];
+					obj.content=[];
+					obj.content.push(content);
+				}	
+				this.setWenjun(obj);
+				this.selectId=id;
+				
+				// console.log(index,index2,index3);
+				// return;
+				// const question=this.wenjuan[index].content[index2].title;
+				
+				// const value=this.wenjuan[index].content[index2].content[index3].title;
+				// this.answers[question] = value;
+				// this.selectIndexs[question]={index,index2,index3};
+				// const ids=this.wenjuan[index].content[index2].content[index3].ids;
+				// for (var key in this.wenjuan) {
+				// 	this.wenjuan[index].isShow=ids.includes(key);
+				// }
 			},
 			submitAnswers() {
-				console.log("用户回答：", this.answers);
+				console.log(this.selectId);
+				const obj=this.map_id_object[this.selectId];
+				
+				if(obj && obj.product_id)
+				{
+					const data={selectId:this.selectId};
+					data['product_id']=obj.product_id;
+					data['product_sel_txt']=obj.product_sel_txt;
+					data['advice']=obj.advice;
+					this.recommendProducts(data);
+				}
+				else
+				{
+					uni.showToast({
+						title:"请完整回答，再提交！",
+						icon:"none"
+					})
+				}
+				
+				//console.log("用户回答：", this.answers);
 				// 根据回答跳转逻辑
-				this.recommendProducts();
+				//this.recommendProducts({answers:this.answers,selectIndexs:this.selectIndexs});
 			},
-			recommendProducts() {
+			recommendProducts(data) {
 				
-				const productIds=[92,91,90,89,88];//护发素,短发重油洗发膏,油性洗发膏,中性洗发膏,干性洗发膏
 				
-				getProductDetail(92).then(res => {
-					
+				recommendProducts(data).then(res => {
+					console.log(res.data);
 					this.visible=true;
-					this.product=res.data.storeInfo;
-					this.product.advice="及时清洁，水温≤40℃";
+					this.products=res.data;
+					this.product=this.products[0];
+					//this.product.advice="及时清洁，水温≤40℃";
 				});
+				
+				
+				// const productIds=[92,91,90,89,88];//护发素,短发重油洗发膏,油性洗发膏,中性洗发膏,干性洗发膏
+				
+				// getProductDetail(92).then(res => {
+					
+				// 	this.visible=true;
+				// 	this.product=res.data.storeInfo;
+				// 	this.product.advice="及时清洁，水温≤40℃";
+				// });
 				
 				
 				
@@ -381,6 +536,15 @@
 	  line-height: 80rpx;
 	}
 
+
+.radio-item radio[aria-checked="true"] {
+  color: rgb(255, 255, 255); 
+  background-color: rgb(0, 122, 255);
+   border-color: rgb(0, 122, 255); 
+  border-radius: 50%;
+  padding-right: 0px;
+  margin-right:5px;
+}
 
 	
 </style>

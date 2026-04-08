@@ -259,9 +259,9 @@
 				if (!that.merchantData.phone) return that.$util.Tips({
 					title: that.$t(`请填写手机号码`)
 				});
-				if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.merchantData.phone)) return that.$util.Tips({
-					title: that.$t(`请输入正确的手机号码`)
-				});
+				// if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.merchantData.phone)) return that.$util.Tips({
+				// 	title: that.$t(`请输入正确的手机号码`)
+				// });
 				this.$refs.verify.show()
 			},
 			successVerify(data) {
@@ -503,9 +503,9 @@
 				if (!value.phone) return that.$util.Tips({
 					title: that.$t(`请输入手机号`)
 				});
-				if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(value.phone)) return that.$util.Tips({
-					title: that.$t(`请输入正确的手机号码`)
-				});
+				// if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(value.phone)) return that.$util.Tips({
+				// 	title: that.$t(`请输入正确的手机号码`)
+				// });
 				if (!value.code) return that.$util.Tips({
 					title: that.$t(`填写验证码`)
 				});

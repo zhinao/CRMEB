@@ -11,8 +11,8 @@ module.exports = {
 	// HTTP_REQUEST_URL: window.location.protocol + "//" + window.location.host,
 	// // #endif 
 
+// HTTP_REQUEST_URL: `https://b.danao.net.cn`,
 HTTP_REQUEST_URL: `https://d.danao.net.cn`,
-
 	// 后台版本号
 	SYSTEM_VERSION: 540,
 

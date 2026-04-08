@@ -412,6 +412,7 @@
 					that.userInfo = res.data;
 					that.$store.commit('SETUID', res.data.uid);
 					that.$store.commit('UPDATE_USERINFO', res.data);
+					//this.isShow = true;
 					if (new_user) {
 						this.isShow = true
 					} else {

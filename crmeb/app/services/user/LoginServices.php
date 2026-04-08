@@ -257,6 +257,14 @@ class LoginServices extends BaseServices
             throw new ApiException(410014);
         } else {
             $userServices->rewardNewUser((int)$re->uid);
+            
+            //判断是否有团队长，如果有则赠送永久会员
+            $teamUserInfo = $userServices->getTeamUserInfo((int)$re->uid);
+            if ($teamUserInfo !== null) {
+                //赠送永久会员
+                $userServices->setMemberOverdueTime(1, (int)$re->uid, 1, 'ever');
+            }
+            
             //用户生成后置事件
             event('UserRegisterListener', [$spread, $user_type, $data['nickname'], $re->uid, 1]);
 

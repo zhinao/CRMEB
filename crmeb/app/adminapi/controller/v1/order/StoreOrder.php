@@ -264,8 +264,57 @@ class StoreOrder extends AuthController
             ['day_type', 0], //顺丰传 0今天，1明天，2后台
             ['pickup_time', []],//开始时间 9:00，结束时间 10:00  开始时间和结束时间之间不能小于一个小时
         ]);
+        
+        //return app('json')->success(100010,$data);
+
         return app('json')->success(100010, $services->delivery((int)$id, $data));
     }
+
+    //批量打印面单
+    public function printOrderAll(StoreOrderDeliveryServices $services)
+    {
+        [$ids] = $this->request->postMore([
+            ['ids', []],
+        ], true);
+        if (!count($ids)) return app('json')->fail('请选择需要打印的订单');
+
+ 
+
+        $expressData = array(
+            'type' => '1',
+            'delivery_name' => '中通快递',
+            'delivery_id' => '',
+            'delivery_code' => 'zhongtong',
+            'express_record_type' => '2',
+            'express_temp_id' => 'a524076065894dc1b817c953c583fcc5',
+            'to_name' => '东方沐匠',
+            'to_tel' => '15976344931',
+            'to_addr' => '广东省潮州市潮安区外环北路潮州九合文化有限公司',
+            'sh_delivery_name' => '',
+            'sh_delivery_id' => '',
+            'sh_delivery_uid' => '',
+            'fictitious_content' => '',
+            'day_type' => 0,
+            'pickup_time' => array(
+                '',
+                ''
+            )
+        );
+
+        foreach ($ids as $id) {
+            //$this->update_delivery($id,$services);
+            app('json')->success(100010, $services->delivery((int)$id, $expressData));
+        }
+        return app('json')->success('批量打印指令已发送');
+
+        // if ($this->services->getOrderIdsCount($ids))
+        //     return app('json')->fail(400157);
+        // if ($this->services->batchUpdate($ids, ['is_system_del' => 1]))
+        //     return app('json')->success(100002);
+        // else
+        //     return app('json')->fail(100008);
+    }
+
 
     /**
      * 订单拆单发送货
@@ -488,7 +537,12 @@ class StoreOrder extends AuthController
             'refund_img' => json_encode([]),
         ];
 
+
+
         $res = $services->applyRefund((int)$id, $order['uid'], $order, $data['cart_ids'], 1, (float)$data['refund_price'], $refundData);
+
+
+
 
         if (!$res) {
             return app('json')->fail('退款单生成失败');
@@ -532,11 +586,14 @@ class StoreOrder extends AuthController
         $refund_data['open_id'] = $wechatUserServices->uidToOpenid((int)$order['uid'], 'routine') ?? '';
         $refund_data['refund_no'] = $orderRefund['order_id'];
         $refund_data['order_id'] = $orderRefund['order_id'];
+
+
+
         //修改订单退款状态
         unset($data['refund_price']);
         if ($services->agreeRefund($orderRefund['id'], $refund_data)) {
             $services->update($orderRefund['id'], $data);
-            return app('json')->success(400149);
+            return app('json')->success('退款成功');//232,5:     400149 => '退款成功',
         } else {
             $services->storeProductOrderRefundYFasle((int)$orderRefund['id'], $refund_price);
             return app('json')->fail(400150);
@@ -829,6 +886,10 @@ class StoreOrder extends AuthController
         if (!$com) {
             return app('json')->fail(400123);
         }
+
+        //cjc
+        return app('json')->success(['data'=>[['temp_id' =>'a524076065894dc1b817c953c583fcc5', 'temp_name' => '中通模版']]]);
+
         $list = $services->express()->temp($com);
         return app('json')->success($list);
     }
@@ -839,9 +900,15 @@ class StoreOrder extends AuthController
     public function express_temp(ServeServices $services)
     {
         $data = $this->request->getMore([['com', '']]);
+       
+    
         if (!$data['com']) {
             return app('json')->fail(400123);
         }
+
+        //cjc
+        return app('json')->success([['temp_id' =>'a524076065894dc1b817c953c583fcc5', 'temp_name' => '中通模版']]);
+
         $tpd = $services->express()->temp($data['com']);
         return app('json')->success($tpd['data']);
     }

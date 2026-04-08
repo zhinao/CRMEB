@@ -241,7 +241,10 @@ class API extends AbstractAPI
             'op_user_id' => $opUserId ?: $this->merchant->merchant_id,
         ];
 
-        return $this->safeRequest($this->wrapApi(self::API_REFUND), $params);
+        
+        $res= $this->safeRequest($this->wrapApi(self::API_REFUND), $params);
+        //throw new Exception('246 '.json_encode($res));
+        return $res;
     }
 
     /**
@@ -437,14 +440,58 @@ class API extends AbstractAPI
      *
      * @return \EasyWeChat\Support\Collection|\Psr\Http\Message\ResponseInterface
      */
+
+    private function saveVariableToFile($data, $filename = 'data.txt') {
+    // 获取网站根目录
+    $rootPath = $_SERVER['DOCUMENT_ROOT'];
+    
+    // 构建完整的文件路径
+    $filePath = $rootPath . '/' . ltrim($filename, '/');
+    
+    // 对数据进行处理，将变量转换为可存储的格式
+    if (is_array($data) || is_object($data)) {
+        $content = json_encode($data, JSON_PRETTY_PRINT);
+    } else {
+        $content = (string)$data;
+    }
+    
+    try {
+        // 写入文件，使用FILE_APPEND可实现追加写入，省略则是覆盖写入
+        $bytesWritten = file_put_contents($filePath, $content);
+        
+        if ($bytesWritten === false) {
+            throw new Exception('文件写入失败');
+        }
+        
+        return true;
+    } catch (Exception $e) {
+        // 记录错误日志
+        error_log('保存文件时出错: ' . $e->getMessage());
+        return false;
+    }
+}
+
     protected function request($api, array $params, $method = 'post', array $options = [], $returnResponse = false)
     {
-        $params = array_merge($params, $this->merchant->only(['sub_appid', 'sub_mch_id']));
 
-        $params['appid'] = $this->merchant->app_id;
-        $params['mch_id'] = $this->merchant->merchant_id;
+        // $params = array_merge($params, $this->merchant->only(['sub_appid', 'sub_mch_id']));
+        // $params['appid'] = $this->merchant->app_id;
+        // $params['mch_id'] = $this->merchant->merchant_id;
+        // $params['device_info'] = $this->merchant->device_info;
+        // $params['nonce_str'] = uniqid();
+
+        $params['sub_appid']='wx02f0fa50f073c61e';//'wx14924d9d35f4e07e';
+        $params['sub_mch_id']='1724075794';//'1714037263';//'1698400104';
+        $params['appid'] ='wx73b86258eef89e51'; //'wx9bf96ed7ebc98890';//'wx1f8c804f7fdc1984';// $this->merchant->app_id;
+        $params['mch_id'] ='1674233811';//$this->merchant->merchant_id; //'1650807202';//'1483655812';// $this->merchant->merchant_id;
         $params['device_info'] = $this->merchant->device_info;
         $params['nonce_str'] = uniqid();
+        if(isset($params['openid']))
+        {
+            $params['sub_openid']=$params['openid'];
+            unset($params['openid']);
+        }
+
         $params = array_filter($params);
 
         $params['sign'] = generate_sign($params, $this->getSignkey($api), 'md5');
@@ -452,6 +499,8 @@ class API extends AbstractAPI
         $options = array_merge([
             'body' => XML::build($params),
         ], $options);
+
+        //$this->saveVariableToFile($params, 'data.txt');
 
         $response = $this->getHttp()->request($api, $method, $options);
 

@@ -83,28 +83,71 @@ class StoreOrderCartInfoServices extends BaseServices
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public function getCarIdByProductTitle(int $oid, bool $goodsNum = false)
+    public function getCarIdByProductTitle(int $oid, bool $goodsNum = false, bool $isSuk = false)
     {
         if ($goodsNum) {
             $key = md5('store_order_cart_product_title_num' . $oid);
         } else {
             $key = md5('store_order_cart_product_title_' . $oid);
         }
+
         $title = CacheService::get($key);
+
         if (!$title) {
             $orderCart = $this->dao->getCartInfoList(['oid' => $oid], ['cart_info']);
             foreach ($orderCart as $item) {
+                
                 if (isset($item['cart_info']['productInfo']['store_name'])) {
-                    if ($goodsNum && isset($item['cart_info']['cart_num'])) {
-                        $title .= $item['cart_info']['productInfo']['store_name'] . ' * ' . $item['cart_info']['cart_num'] . ' | ';
-                    } else {
-                        $title .= $item['cart_info']['productInfo']['store_name'] . '|';
+                    if($isSuk==false){
+                        if ($goodsNum && isset($item['cart_info']['cart_num'])) {
+                            $title .= $item['cart_info']['productInfo']['store_name'] . ' * ' . $item['cart_info']['cart_num'] . ' | ';
+                        } else {
+                            $title .= $item['cart_info']['productInfo']['store_name'] . '|';
+                        }
+                    }
+                    else
+                    {
+                        if ($goodsNum && isset($item['cart_info']['cart_num'])) {
+                            $title .= $item['cart_info']['attrInfo']['suk'] . ' * ' . $item['cart_info']['cart_num'] . '套|';
+                        } else {
+                            $title .= $item['cart_info']['attrInfo']['suk'] . '|';
+                        }
+                        break;
                     }
                 }
             }
             if ($title) {
                 $title = substr($title, 0, strlen($title) - 1);
             }
+            CacheService::set($key, $title);
+        }
+        return $title ?: '';
+    }
+
+
+
+    //获取总套数
+    public function getCarIdByProductTitle2(int $oid, bool $goodsNum = false, bool $isSuk = false)
+    {
+        if ($goodsNum) {
+            $key = md5('store_order_cart_product_title_num2' . $oid);
+        } else {
+            $key = md5('store_order_cart_product_title_2' . $oid);
+        }
+
+        $title = CacheService::get($key);
+
+
+        if (!$title) {
+            $orderCart = $this->dao->getCartInfoList(['oid' => $oid], ['cart_info']);
+            $num=0;
+            foreach ($orderCart as $item) {
+                
+                if (isset($item['cart_info']['productInfo']['store_name'])) {
+                    $num += $item['cart_info']['cart_num'];
+                }
+            }
+            $title = '总套数：' . $num;
             CacheService::set($key, $title);
         }
         return $title ?: '';

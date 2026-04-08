@@ -221,12 +221,14 @@ class AgentLevelServices extends BaseServices
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public function getAgentLevelBrokerage($storeBrokerageRatio, $storeBrokerageTwo, $spread_one_uid, $spread_two_uid)
+    public function getAgentLevelBrokerage($storeBrokerageRatio, $storeBrokerageTwo, $storeBrokerageTeam,$spread_one_uid, $spread_two_uid, $spread_team_uid)
     {
         /** @var UserServices $userServices */
         $userServices = app()->make(UserServices::class);
         $one_agent_level = $userServices->value(['uid' => $spread_one_uid], 'agent_level') ?? 0;
         $two_agent_level = $userServices->value(['uid' => $spread_two_uid], 'agent_level') ?? 0;
+        $team_agent_level = $userServices->value(['uid' => $spread_team_uid], 'agent_level') ?? 0;
+        
 
         if ($one_agent_level) {
             $oneLevelInfo = $this->getLevelInfo($one_agent_level);
@@ -252,7 +254,20 @@ class AgentLevelServices extends BaseServices
             }
         }
 
-        return [$storeBrokerageRatio, $storeBrokerageTwo];
+//         if ($team_agent_level) {
+//             $teamLevelInfo = $this->getLevelInfo($team_agent_level);
+//             if ($teamLevelInfo) {
+//                 $storeBrokerageTeam = $teamLevelInfo['team_brokerage_percent'];
+// //                if ($twoLevelInfo['two_brokerage_percent'] == '0.00') {
+// //                    $storeBrokerageTwo = $storeBrokerageTwo + (($storeBrokerageTwo * $twoLevelInfo['two_brokerage'] ?? 0) / 100);
+// //                } else {
+// //                    $storeBrokerageTwo = $twoLevelInfo['two_brokerage_percent'];
+// //                }
+//             }
+//         }
+
+
+        return [$storeBrokerageRatio, $storeBrokerageTwo,$storeBrokerageTeam];
     }
 
     /**

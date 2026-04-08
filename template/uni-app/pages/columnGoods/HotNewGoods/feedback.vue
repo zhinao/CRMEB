@@ -50,11 +50,11 @@
 						title: this.$t(`请输入姓名`)
 					})
 				}
-				if(!this.phone || !(/^1(3|4|5|7|8|9|6)\d{9}$/i.test(this.phone))){
-					return this.$util.Tips({
-						title:this.$t(`请输入正确的手机号码`)
-					})
-				}
+				// if(!this.phone || !(/^1(3|4|5|7|8|9|6)\d{9}$/i.test(this.phone))){
+				// 	return this.$util.Tips({
+				// 		title:this.$t(`请输入正确的手机号码`)
+				// 	})
+				// }
 				if(!this.con){
 					return this.$util.Tips({
 						title: this.$t(`请填写内容`)

@@ -67,6 +67,16 @@ export function extractlistApi(id, data) {
   });
 }
 
+
+//佣金列表 -- 取佣金表
+export function brokerageListApi(id, data) {
+  return request({
+    url: `finance/finance/brokerage_list/${id}`,
+    method: 'get',
+    params: data,
+  });
+}
+
 /**
  * @description 提现申请 -- 列表
  * @param {Object} param data {Object} 提现申请传值

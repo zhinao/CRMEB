@@ -1,5 +1,6 @@
 <template>
 	<view class="login-wrapper" :style="colorStyle">
+		<image @click="setLang" :src="locale=='pt-BR'?'../static/pt-br.png':'../static/zh-cn.png'" style="width:32px;height:32px;" ></image>
 		<view class="shading">
 			<image :src="logoUrl" />
 		</view>
@@ -49,6 +50,10 @@
 			</view>
 			<view class="logon" @click="loginMobile" v-if="current !== 0">{{ $t(`登录`) }}</view>
 			<view class="logon" @click="submit" v-if="current === 0">{{ $t(`登录`) }}</view>
+			
+			<view class="tips">
+				<view  @click="formItem = 0">{{ $t(`账号注册`) }}</view>
+			</view>
 			<!-- #ifndef APP-PLUS -->
 			<view class="tips">
 				<view v-if="current == 0" @click="current = 1">{{ $t(`快速登录`) }}</view>
@@ -88,10 +93,44 @@
 				</checkbox-group>
 			</view>
 		</view>
+		<view class="whiteBg" v-if="formItem !== 1">
+			<view class="list" v-if="current !== 1">
+				<form @submit.prevent="submit">
+					<view class="item">
+						<view class="acea-row row-middle">
+							<image src="../static/phone_1.png" style="width: 24rpx; height: 34rpx"></image>
+							<input type="text" :placeholder="$t(`输入手机号码`)" v-model="account" maxlength="11" required />
+						</view>
+					</view>
+					<view class="item">
+						<view class="acea-row row-middle">
+							<image src="../static/code_1.png" style="width: 28rpx; height: 32rpx"></image>
+							<input type="password" :placeholder="$t(`填写登录密码`)" v-model="password" required />
+						</view>
+					</view>
+					<view class="item">
+						<view class="acea-row row-middle">
+							<image src="../static/spread.png" style="width: 28rpx; height: 32rpx"></image>
+							<input type="text" :placeholder="$t(`填写邀请码`)" v-model="spread"  />
+						</view>
+					</view>
+				</form>
+			</view>
+			
+			<view class="logon" @click="register" >{{ $t(`注册`) }}</view>
+
+			<view class="tips">
+				<view  @click="formItem = 1">{{ $t(`账号登录`) }}</view>
+			</view>
+
+			
+
+		</view>
+		
 		<view class="bottom">
 			<view class="ver" v-if="copyRight">{{ copyRight }}</view>
 			<view v-else class="ver">
-				<a href="https://www.crmeb.com">Copyright ©2024 CRMEB. All Rights</a>
+				<a href="">Copyright ©2024 ZHINAO. All Rights</a>
 			</view>
 		</view>
 		<Verify @success="success" :captchaType="captchaType" :imgSize="{ width: '330px', height: '155px' }" ref="verify"></Verify>
@@ -119,13 +158,15 @@ export default {
 	mixins: [sendVerifyCode, colors],
 	data: function () {
 		return {
+			locale:uni.getStorageSync('locale','pt-BR'),
 			copyRight: '',
 			inAnimation: false,
-			protocol: false,
+			protocol: true,
 			navList: [this.$t(`快速登录`), this.$t(`账号登录`)],
-			current: 1,
+			current: 0,
 			account: '',
 			password: '',
+			spread:this.$Cache.get('spread'),
 			captcha: '',
 			formItem: 1,
 			type: 'login',
@@ -153,6 +194,8 @@ export default {
 	},
 	onLoad() {
 		let self = this;
+		this.locale=uni.getStorageSync('locale','pt-BR');
+		console.log(this.locale);
 		uni.getSystemInfo({
 			success: (res) => {
 				if (res.platform.toLowerCase() == 'ios' && this.getSystem(res.system)) {
@@ -169,6 +212,25 @@ export default {
 		this.getLogoImage();
 	},
 	methods: {
+		// 切换语言方法
+		changeLanguage(lang) {
+		  // 1. 保存语言设置到本地存储
+		  uni.setStorageSync('locale', lang);
+		  
+		  // // 2. 更新全局语言状态（根据CRMEB实际结构调整）
+		  this.$i18n.locale = lang;
+		  getApp().globalData.lang = lang;
+		  
+		  // 3. 获取当前页面路径
+		  const pages = getCurrentPages();
+		  const currentPage = pages[pages.length - 1];
+		  const currentRoute = currentPage.route;
+		  
+		  // 4. 使用reLaunch重新加载当前页
+		  uni.reLaunch({
+		    url: '/' + currentRoute
+		  });
+		},
 		ChangeIsDefault(e) {
 			this.$set(this, 'protocol', !this.protocol);
 		},
@@ -395,10 +457,10 @@ export default {
 				return that.$util.Tips({
 					title: that.$t(`请填写手机号码`)
 				});
-			if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.account))
-				return that.$util.Tips({
-					title: that.$t(`请输入正确的手机号码`)
-				});
+			// if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.account))
+			// 	return that.$util.Tips({
+			// 		title: that.$t(`请输入正确的手机号码`)
+			// 	});
 			this.$refs.verify.show();
 		},
 		async getLogoImage() {
@@ -419,10 +481,10 @@ export default {
 				return that.$util.Tips({
 					title: that.$t(`请填写手机号码`)
 				});
-			if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.account))
-				return that.$util.Tips({
-					title: that.$t(`请输入正确的手机号码`)
-				});
+			// if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.account))
+			// 	return that.$util.Tips({
+			// 		title: that.$t(`请输入正确的手机号码`)
+			// 	});
 			if (!that.captcha)
 				return that.$util.Tips({
 					title: that.$t(`请填写验证码`)
@@ -477,41 +539,41 @@ export default {
 		},
 		async register() {
 			let that = this;
-			if (!that.protocol) {
-				this.inAnimation = true;
-				return that.$util.Tips({
-					title: '请先阅读并同意协议'
-				});
-			}
+			// if (!that.protocol) {
+			// 	this.inAnimation = true;
+			// 	return that.$util.Tips({
+			// 		title: '请先阅读并同意协议'
+			// 	});
+			// }
 			if (!that.account)
 				return that.$util.Tips({
 					title: that.$t(`请填写手机号码`)
 				});
-			if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.account))
-				return that.$util.Tips({
-					title: that.$t(`请输入正确的手机号码`)
-				});
-			if (!that.captcha)
-				return that.$util.Tips({
-					title: that.$t(`请填写验证码`)
-				});
-			if (!/^[\w\d]+$/i.test(that.captcha))
-				return that.$util.Tips({
-					title: that.$t(`请输入正确的验证码`)
-				});
+			// if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.account))
+			// 	return that.$util.Tips({
+			// 		title: that.$t(`请输入正确的手机号码`)
+			// 	});
+			// if (!that.captcha)
+			// 	return that.$util.Tips({
+			// 		title: that.$t(`请填写验证码`)
+			// 	});
+			// if (!/^[\w\d]+$/i.test(that.captcha))
+			// 	return that.$util.Tips({
+			// 		title: that.$t(`请输入正确的验证码`)
+			// 	});
 			if (!that.password)
 				return that.$util.Tips({
 					title: that.$t(`请填写密码`)
 				});
-			if (/^([0-9]|[a-z]|[A-Z]){0,6}$/i.test(that.password))
-				return that.$util.Tips({
-					title: that.$t(`您输入的密码过于简单`)
-				});
+			// if (/^([0-9]|[a-z]|[A-Z]){0,6}$/i.test(that.password))
+			// 	return that.$util.Tips({
+			// 		title: that.$t(`您输入的密码过于简单`)
+			// 	});
 			register({
 				account: that.account,
 				captcha: that.captcha,
 				password: that.password,
-				spread: that.$Cache.get('spread')
+				spread: that.spread 
 			})
 				.then((res) => {
 					that.$util.Tips({
@@ -537,10 +599,10 @@ export default {
 				return that.$util.Tips({
 					title: that.$t(`请填写手机号码`)
 				});
-			if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.account))
-				return that.$util.Tips({
-					title: that.$t(`请输入正确的手机号码`)
-				});
+			// if (!/^1(3|4|5|7|8|9|6)\d{9}$/i.test(that.account))
+			// 	return that.$util.Tips({
+			// 		title: that.$t(`请输入正确的手机号码`)
+			// 	});
 			if (that.formItem == 2) that.type = 'register';
 
 			await registerVerify({
@@ -577,10 +639,10 @@ export default {
 				return that.$util.Tips({
 					title: that.$t(`请填写账号`)
 				});
-			if (!/^[\w\d]{5,16}$/i.test(that.account))
-				return that.$util.Tips({
-					title: that.$t(`请输入正确的账号`)
-				});
+			// if (!/^[\w\d]{5,16}$/i.test(that.account))
+			// 	return that.$util.Tips({
+			// 		title: that.$t(`请输入正确的账号`)
+			// 	});
 			if (!that.password)
 				return that.$util.Tips({
 					title: that.$t(`请填写密码`)
@@ -622,7 +684,24 @@ export default {
 						title: e
 					});
 				});
+		},
+	
+		setLang()
+		{
+			if(this.locale=='pt-BR')
+			{
+				this.locale='zh-CN';
+			}
+			else
+			{
+				this.locale='pt-BR';
+			}
+			//uni.setStorageSync('locale',this.locale);
+			this.changeLanguage(this.locale);
+			
+			//console.log(uni.getStorageSync('locale'));
 		}
+	
 	}
 };
 </script>

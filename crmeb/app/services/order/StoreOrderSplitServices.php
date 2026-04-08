@@ -285,7 +285,7 @@ class StoreOrderSplitServices extends BaseServices
     {
         $order_update['cart_id'] = array_column($cart_info_data, 'cart_id');
         $order_update['total_num'] = array_sum(array_column($cart_info_data, 'cart_num'));
-        $total_price = $coupon_price = $deduction_price = $use_integral = $pay_postage = $gainIntegral = $one_brokerage = $two_brokerage = $staffBrokerage = $agentBrokerage = $divisionBrokerage = 0;
+        $total_price = $coupon_price = $deduction_price = $use_integral = $pay_postage = $gainIntegral = $one_brokerage = $two_brokerage = $team_brokerage = $staffBrokerage = $agentBrokerage = $divisionBrokerage = 0;
         foreach ($cart_info_data as $cart) {
             $_info = json_decode($cart['cart_info'], true);
             $total_price = bcadd((string)$total_price, (string)$_info['sum_true_price'], 2);
@@ -297,6 +297,7 @@ class StoreOrderSplitServices extends BaseServices
             $gainIntegral = bcadd((string)$gainIntegral, (string)$cartInfoGainIntegral, 0);
             $one_brokerage = bcadd((string)$one_brokerage, (string)$_info['one_brokerage'], 2);
             $two_brokerage = bcadd((string)$two_brokerage, (string)$_info['two_brokerage'], 2);
+            $team_brokerage = bcadd((string)$team_brokerage, (string)$_info['team_brokerage'], 2);
             $staffBrokerage = bcadd((string)$staffBrokerage, (string)$_info['staff_brokerage'], 2);
             $agentBrokerage = bcadd((string)$agentBrokerage, (string)$_info['agent_brokerage'], 2);
             $divisionBrokerage = bcadd((string)$divisionBrokerage, (string)$_info['division_brokerage'], 2);
@@ -321,6 +322,7 @@ class StoreOrderSplitServices extends BaseServices
         $order_update['pay_postage'] = $pay_postage;
         $order_update['one_brokerage'] = $one_brokerage;
         $order_update['two_brokerage'] = $two_brokerage;
+        $order_update['team_brokerage'] = $team_brokerage;
         $order_update['staff_brokerage'] = $staffBrokerage;
         $order_update['agent_brokerage'] = $agentBrokerage;
         $order_update['division_brokerage'] = $divisionBrokerage;
@@ -343,7 +345,7 @@ class StoreOrderSplitServices extends BaseServices
         if ($cart_num >= $cart_info['cart_num']) return $cart_info;
         $new_cart_info = $cart_info;
         $new_cart_info['cart_num'] = $cart_num;
-        $compute_arr = ['coupon_price', 'integral_price', 'postage_price', 'use_integral', 'one_brokerage', 'two_brokerage', 'staff_brokerage', 'agent_brokerage', 'division_brokerage', 'sum_true_price'];
+        $compute_arr = ['coupon_price', 'integral_price', 'postage_price', 'use_integral', 'one_brokerage', 'two_brokerage', 'team_brokerage', 'staff_brokerage', 'agent_brokerage', 'division_brokerage', 'sum_true_price'];
         foreach ($compute_arr as $field) {
             if (!isset($cart_info[$field]) || !$cart_info[$field]) {
                 $new_cart_info[$field] = 0;

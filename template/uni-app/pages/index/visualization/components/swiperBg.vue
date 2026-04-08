@@ -1,46 +1,74 @@
 <template>
 	<view class="swiperBg" :style="{marginTop:mt +'rpx'}">
-		<view class="bag" v-if="isIframe || (imgUrls.length && isShow)">
+		<view class="bag" v-if="isIframe || (videoUrls.length && isShow)">
 		</view>
-		<block v-if="isShow && imgUrls.length">
-			<view class="swiper square" v-if="imgUrls.length">
-				<swiper class="skeleton-rect" :style="'height:'+ (imageH) +'rpx;'" indicator-dots="true"
-					:autoplay="true" :circular="circular" :interval="interval" :duration="duration"
-					indicator-color="rgba(255,255,255,0.6)" indicator-active-color="#fff" :current="swiperCur"
-					@change="swiperChange">
-					<block v-for="(item,index) in imgUrls" :key="index">
-						<swiper-item class="" :class="{active:index == swiperCur}">
-							<view @click="goDetail(item)" class='slide-navigator acea-row row-between-wrapper'>
-								<image :src="item.img" class="slide-image" mode="widthFix"
-									:style="'height:'+ (imageH) +'rpx;'">
-								</image>
-							</view>
-						</swiper-item>
-					</block>
-
-				</swiper>
+		<block v-if="isShow && videoUrls.length">
+			<view class="video-container square" v-if="videoUrls.length">
+				<video 
+					class="video-player skeleton-rect" 
+					:style="'height:'+ (videoH) +'rpx;'" 
+					:src="currentVideo.src"
+					:poster="currentVideo.poster"
+					:autoplay="true"
+					:loop="false"
+					:muted="true"
+					:controls="true"
+					:show-fullscreen-btn="true"
+					:show-play-btn="true"
+					:show-center-play-btn="true"
+					@click="goDetail(currentVideo)"
+					@ended="onVideoEnded"
+					@play="onVideoPlay"
+					@pause="onVideoPause"
+				></video>
+				
+				<!-- 视频切换指示器 -->
+				<view class="video-indicators" v-if="videoUrls.length > 1">
+					<view 
+						class="indicator-dot square" 
+						:class="{active: index == currentIndex}"
+						v-for="(item,index) in videoUrls" 
+						:key="index"
+						@click="switchVideo(index)"
+					></view>
+				</view>
 			</view>
 		</block>
-		<block v-if="!isShow && isIframe && imgUrls.length && imageH">
-			<view class="swiper square" v-if="imgUrls.length && imageH" :style="'height:'+ (imageH) +'rpx;'">
-				<swiper :style="'height:'+ (imageH) +'rpx;'" indicator-dots="true" :autoplay="true" :circular="circular"
-					:interval="interval" :duration="duration" indicator-color="rgba(255,255,255,0.6)"
-					indicator-active-color="#fff">
-					<block v-for="(item,index) in imgUrls" :key="index">
-						<swiper-item>
-							<view @click="goDetail(item)" class='slide-navigator acea-row row-between-wrapper'>
-								<image :src="item.img" class="slide-image" mode="widthFix"
-									:style="'height:'+ (imageH) +'rpx;'">
-								</image>
-							</view>
-						</swiper-item>
-					</block>
-				</swiper>
+		<block v-if="!isShow && isIframe && videoUrls.length && videoH">
+			<view class="video-container square" v-if="videoUrls.length && videoH" :style="'height:'+ (videoH) +'rpx;'">
+				<video 
+					class="video-player" 
+					<!-- :style="'height:'+ (videoH) +'rpx;'"  -->
+					
+					style="height: 100%;"
 
+					:src="currentVideo.src"
+					:poster="currentVideo.poster"
+					:autoplay="true"
+					:loop="false"
+					:muted="true"
+					:controls="true"
+					:show-fullscreen-btn="true"
+					:show-play-btn="true"
+					:show-center-play-btn="true"
+					@click="goDetail(currentVideo)"
+					@ended="onVideoEnded"
+				></video>
+				
+				<!-- 视频切换指示器 -->
+				<view class="video-indicators" v-if="videoUrls.length > 1">
+					<view 
+						class="indicator-dot square" 
+						:class="{active: index == currentIndex}"
+						v-for="(item,index) in videoUrls" 
+						:key="index"
+						@click="switchVideo(index)"
+					></view>
+				</view>
 			</view>
 		</block>
-		<block v-if="isIframe && (!imgUrls.length || !imageH)">
-			<view class="empty-img">{{$t(`暂无图片，请上传图片`)}}</view>
+		<block v-if="isIframe && (!videoUrls.length || !videoH)">
+			<view class="empty-img">{{$t(`暂无视频，请上传视频`)}}</view>
 		</block>
 	</view>
 </template>
@@ -64,27 +92,21 @@
 				immediate: true,
 				handler(nVal, oVal) {
 					if (nVal) {
-						this.imgUrls = nVal.imgList ? nVal.imgList.list : [];
+						// 将图片数据转换为视频数据
+						this.videoUrls = nVal.imgList ? nVal.imgList.list.map(item => ({
+							...item,
+							src: item.img, // 假设视频URL保存在img字段中
+							poster: item.poster || item.img // 视频封面图
+						})) : [];
 						this.isShow = nVal.isShow ? nVal.isShow.val : true
-						uni.getImageInfo({
-							src: this.imgUrls.length ? this.imgUrls[0].img : '',
-							success: (res) => {
-								if (res && res.height > 0) {
-									this.$set(this, 'imageH',
-										res.height / res
-										.width * 690)
-								} else {
-									this.$set(this, 'imageH', 320);
-								}
-							},
-							fail: (error) => {
-								this.$set(this, 'imageH', 320);
-							}
-						})
+						// 设置默认视频高度
+						this.$set(this, 'videoH', 720);
+						// 启动自动切换
+						this.startAutoSwitch();
 					}
 				}
 			},
-			imageH(nVal, oVal) {
+			videoH(nVal, oVal) {
 				let self = this
 			},
 		},
@@ -93,16 +115,31 @@
 				indicatorDots: false,
 				circular: true,
 				autoplay: true,
-				interval: 4000,
+				interval: 8000, // 增加间隔时间以适应视频播放
 				duration: 500,
-				imgUrls: [], //图片轮播数据
+				videoUrls: [], // 视频数据
 				name: this.$options.name,
 				isIframe: false,
 				mt: -55,
 				isShow: true,
-				imageH: 320,
-				swiperCur: 0,
+				videoH: 720,
+				currentIndex: 0,
+				autoSwitchTimer: null,
+				isPlaying: false,
 			};
+		},
+		computed: {
+			currentVideo() {
+				if (this.videoUrls.length > 0) {
+					const video = this.videoUrls[this.currentIndex];
+					return {
+						src: video.src,
+						poster: video.poster || '',
+						info: video.info
+					};
+				}
+				return {};
+			}
 		},
 		created() {
 			// #ifdef MP || APP-PLUS
@@ -133,27 +170,74 @@
 				if (url.indexOf("https://") > -1) return url;
 				else return url.replace('http://', 'https://');
 			},
-			swiperChange(e) {
-				// this.swiperCur = e.detail.current
-				let {
-					current,
-					source
-				} = e.detail
-				if (source === 'autoplay' || source === 'touch') {
-					//根据官方 source 来进行判断swiper的change事件是通过什么来触发的，autoplay是自动轮播。touch是用户手动滑动。其他的就是未知问题。抖动问题主要由于未知问题引起的，所以做了限制，只有在自动轮播和用户主动触发才去改变current值，达到规避了抖动bug
-					this.swiperCur = e.detail.current
+			// 视频播放结束时切换到下一个视频
+			onVideoEnded() {
+				if (this.videoUrls.length > 1) {
+					this.switchToNext();
+				} else {
+					// 如果只有一个视频，重新播放
+					this.restartCurrentVideo();
 				}
 			},
+			// 视频开始播放
+			onVideoPlay() {
+				this.isPlaying = true;
+				// 视频播放时暂停自动切换
+				this.stopAutoSwitch();
+			},
+			// 视频暂停播放
+			onVideoPause() {
+				this.isPlaying = false;
+				// 视频暂停时恢复自动切换
+				this.startAutoSwitch();
+			},
+			// 切换到指定视频
+			switchVideo(index) {
+				if (index !== this.currentIndex) {
+					this.currentIndex = index;
+					this.restartAutoSwitch();
+				}
+			},
+			// 切换到下一个视频
+			switchToNext() {
+				this.currentIndex = (this.currentIndex + 1) % this.videoUrls.length;
+			},
+			// 重新播放当前视频
+			restartCurrentVideo() {
+				// 这里可以通过ref调用video的play方法，但uni-app中需要特殊处理
+				console.log('重新播放当前视频');
+			},
+			// 启动自动切换
+			startAutoSwitch() {
+				if (this.videoUrls.length > 1 && !this.isPlaying) {
+					this.stopAutoSwitch(); // 确保不会重复设置定时器
+					this.autoSwitchTimer = setInterval(() => {
+						if (!this.isPlaying) {
+							this.switchToNext();
+						}
+					}, this.interval);
+				}
+			},
+			// 重启自动切换
+			restartAutoSwitch() {
+				this.stopAutoSwitch();
+				this.startAutoSwitch();
+			},
+			// 停止自动切换
+			stopAutoSwitch() {
+				if (this.autoSwitchTimer) {
+					clearInterval(this.autoSwitchTimer);
+					this.autoSwitchTimer = null;
+				}
+			}
+		},
+		beforeDestroy() {
+			this.stopAutoSwitch();
 		}
 	}
 </script>
 
 <style lang="scss">
-	.swiperBg ::v-deep  .uni-swiper-slides {
-		overflow: hidden;
-		border-radius: 10rpx;
-	}
-
 	.swiperBg {
 		background-color: #fff;
 		position: relative;
@@ -162,101 +246,82 @@
 
 		.bag {
 			position: absolute;
-			top: 0;
+			top: -140rpx; /* 移出可视区域 */
 			width: 100%;
 			height: 140rpx;
 			background: linear-gradient(90deg, var(--view-main-start) 0%, var(--view-main-over) 100%);
 			border-bottom-left-radius: 40rpx;
 			border-bottom-right-radius: 40rpx;
+			z-index: -1; /* 确保在视频下方 */
 		}
 
-		/* #ifdef APP-PLUS */
-		/* #endif */
 		.colorBg {
 			position: absolute;
 			left: 0;
-			top: 0;
+			top: -130rpx; /* 移出可视区域 */
 			height: 130rpx;
 			width: 100%;
+			z-index: -1; /* 确保在视频下方 */
 		}
 
-		.swiper {
+		.video-container {
 			z-index: 100;
 			position: relative;
-			min-height: 200rpx;
+			min-height: 100vh;
+			height: 100vh;
 			padding: 0 $uni-index-margin-col;
-			/* #ifdef APP-PLUS */
-			// margin: 0rpx auto 0 auto;
-			/* #endif */
 			overflow: hidden;
+			border-radius: 10rpx;
 
-			/* #ifdef MP */
-			/* #endif */
-			/* 设置圆角 */
-			&.fillet {
-				border-radius: 10rpx;
-
-				image {
-					border-radius: 10rpx;
-				}
-			}
-
-			swiper,
-			.swiper-item,
-			image {
+			.video-player {
 				width: 100%;
-				overflow: hidden;
+				height: 100vh;
+				min-height: 100vh;
 				border-radius: 10rpx;
+				background-color: #000;
+				object-fit: cover;
 			}
 
-			.slide-navigator {}
+			.video-indicators {
+				position: absolute;
+				bottom: 20rpx;
+				left: 50%;
+				transform: translateX(-50%);
+				display: flex;
+				gap: 8rpx;
+				z-index: 200;
+				padding: 6rpx 12rpx;
+				background: rgba(0, 0, 0, 0.3);
+				border-radius: 20rpx;
 
-			image {
-				transform: scale(1);
-				// transition: all .3s ease;
-			}
-
-			swiper-item.active {
-				image {
-					transform: scale(1);
-				}
-			}
-
-			// 圆形指示点
-			&.circular {
-				::v-deep .uni-swiper-dot {
-					width: 10rpx !important;
-					height: 10rpx !important;
-					background: rgba(0, 0, 0, .4) !important
-				}
-
-				::v-deep .uni-swiper-dot-active {
-					background: #fff !important
-				}
-			}
-
-			// 方形指示点
-			&.square {
-				::v-deep .uni-swiper-dot {
-					width: 20rpx !important;
-					height: 5rpx !important;
+				.indicator-dot {
+					width: 20rpx;
+					height: 5rpx;
 					border-radius: 3rpx;
-					background: rgba(0, 0, 0, .4) !important
-				}
+					background: rgba(255, 255, 255, 0.4);
+					cursor: pointer;
+					transition: all 0.3s ease;
 
-				::v-deep .uni-swiper-dot-active {
-					background: #fff !important
-				}
+					&.active {
+						background: #fff;
+						transform: scale(1.2);
+					}
 
+					&:hover {
+						background: rgba(255, 255, 255, 0.8);
+					}
+				}
 			}
 
+			// 方形指示点样式
+			&.square {
+				.indicator-dot {
+					width: 20rpx;
+					height: 5rpx;
+					border-radius: 3rpx;
+				}
+			}
 		}
-	}
-
-	.item-img image {
-		display: block;
-		width: 100%;
-		border-radius: 10rpx;
 	}
 
 	.empty-img {
@@ -268,6 +333,8 @@
 		text-align: center;
 		line-height: 300rpx;
 		position: relative;
+		color: #666;
+		font-size: 28rpx;
 
 		.iconfont {
 			font-size: 50rpx;
